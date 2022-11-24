@@ -1,17 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Diagnostics;
 
 namespace Aquarium
 {
-    public partial class Fish : Form
+    public partial class Fish : GameObject
     {
         //--- --- ---
         /// <summary>
@@ -42,7 +35,7 @@ namespace Aquarium
         /// <summary>
         /// Задержка поворота рыбы 
         /// </summary>
-        public double RotationSpeed = 50;
+        public uint RotationDelay = 100;
 
         //ushort oxygen = 100;
         //ushort saturation = 100;
@@ -68,6 +61,13 @@ namespace Aquarium
         /// </summary>
         private bool isTriggered = false;
 
+        //TODO Перетаскивание рыбы
+        /// <summary>
+        /// Замораживает update - функцию рыбы.
+        /// </summary>
+        //private bool isDragged = false;
+
+        //TODO Система питания и хищники
         /// <summary>
         /// Насколько рыба сыта
         /// </summary>
@@ -133,23 +133,26 @@ namespace Aquarium
         /// <summary>
         /// Изображение рыбы
         /// </summary>
-        private Bitmap FishTexture;
+        private Bitmap Texture;
 
+        //TODO избавиться от переменных 
         /// <summary>
-        ///  Управление поведением рыбы с каждым тиком dt
+        ///  Вектора для управления рыбой, вынесены в общую часть, чтобы не персоздавать их в коде
         /// </summary>
-        /// <param name="dt"></param>
+        /// <param name="dx"> По X </param>
+        /// <param name="dy"> По Y </param>
+        /// <param name="g"> Гипотенуза (сумма векторов) = расстояние до мышки </param>
         /// 
         double dx, dy, g;
         //--- --- ---
-
+        //TODO Перенести в GraphOBJ
         private void InitializeBitmap(string name)
         {
             try
             {
-                FishTexture = (Bitmap)Bitmap.FromFile("../../data/textures/" + name + ".png");
+                Texture = (Bitmap)Bitmap.FromFile("../../data/textures/" + name + ".png");
                 pictureBox1.SizeMode = PictureBoxSizeMode.AutoSize;
-                pictureBox1.Image = FishTexture;
+                pictureBox1.Image = Texture;
             }
             catch (System.IO.FileNotFoundException)
             {
@@ -158,14 +161,16 @@ namespace Aquarium
             }
         }
 
-        private void Fish_MouseClick(object sender, MouseEventArgs e)
+        //TODO Drag & Drop
+        private void Fish_MouseDown(object sender, MouseEventArgs e)
         {
-            if ( e.Button == MouseButtons.Left)
-            {
-                DoDragDrop(this, DragDropEffects.Move);
-            }
+
         }
 
+        private void Fish_MouseUp(object sender, MouseEventArgs e)
+        {
+
+        }
 
         public Fish()
         {
@@ -177,9 +182,9 @@ namespace Aquarium
             TriggeredSpeed = CurSpeed * TriggeredSpeedMultiplier;
 
             //Растянем/Сузим форму под изображение
-            this.Width = FishTexture.Width;
-            this.Height = FishTexture.Height;
-    }
+            this.Width = Texture.Width;
+            this.Height = Texture.Height;
+        }
         public Fish(string name)
         {
             InitializeComponent();
@@ -189,36 +194,36 @@ namespace Aquarium
             CurSpeed = MaxSpeedConst;
             TriggeredSpeed = CurSpeed * TriggeredSpeedMultiplier;
         }
-        public Fish(string name, int pMaxSpeedConst, uint pMemoryLasts, int pFov, double pTriggeredMultiplier)
+        public Fish(string name, int pMaxSpeedConst, bool pcursorFear, uint pMemoryLasts, int pFov, double pTriggeredMultiplier, uint pRotationDelay)
         {
             InitializeComponent();
             InitializeBitmap(name);
             TransparencyKey = BackColor;
 
+            cursorFear = pcursorFear;
             MaxSpeedConst = pMaxSpeedConst;
             memoryLasts = pMemoryLasts;
             fov = pFov;
 
             CurSpeed = MaxSpeedConst;
+            RotationDelay = pRotationDelay;
             TriggeredSpeedMultiplier = pTriggeredMultiplier;
             TriggeredSpeed = CurSpeed * TriggeredSpeedMultiplier;
         }
 
-        private void MainForm_Click(object sender, EventArgs e)
+        public virtual void Update(int dt)
         {
-            //active = !active;
-
-           CurSpeed += 1000;
-        }
-        public void Update(int dt)
-        {
-           //TODO switch
+            //TODO switch
+            //TODO Выделить состояния в отдельные методы с текстовыми названиями
 
             //Если Мы в районе точки рандеву или .не знаем куда плыть
             //По X: Левый угол формы - - - goX - - - Правый угол изображения
 
             //Анализируем ситуацию вокруг, если условие - меняем состояние
+            //switch (state)
+            //{
             if (state == 0)
+            //0:
             {
                 //Переключатель "Создать новую точку"
                 if ((Location.X - 100 < goX) && (goX < (Location.X + pictureBox1.Image.Width + 100)) || !isPathfinded)
@@ -238,7 +243,7 @@ namespace Aquarium
                     dy = Control.MousePosition.Y - (Location.Y + pictureBox1.Image.Height / 2);
                     g = Math.Sqrt(dx * dx + dy * dy);
 
-                    if ( (g < fov) && (!isTriggered))
+                    if ((g < fov) && (!isTriggered))
                     {
                         state = 15;
                     }
@@ -260,11 +265,11 @@ namespace Aquarium
                             goX = goTX;
                             goY = goTY;
 
-                            CurSpeed = MaxSpeedConst; 
+                            CurSpeed = MaxSpeedConst;
 
                             state = 0;
                         }
-                        
+
                     }
                 }
             }
@@ -272,12 +277,14 @@ namespace Aquarium
             //Ищем новую точку если требуют состояния, с их целями
             if ((state >= 10) && (state < 20))
             {
+                //Генерация новой точки
                 if (state == 10)
                 {
                     goX = rnd.Next(maxx) - pictureBox1.Image.Width;
                     goY = rnd.Next(maxy) - pictureBox1.Image.Height;
                 }
 
+                //Поиск точки побега при испуге
                 if (state == 15)
                 {
                     goTX = goX;
@@ -318,13 +325,17 @@ namespace Aquarium
 
                 state = 0;
             }
-
             //И придумаем как её достичь
+
+            //? Зачем это выделено скобками, если переключения логикой нет?
             {
+                //Вектор Х
                 dx = goX - (Location.X + pictureBox1.Image.Width / 2);
+                //Вектор У
                 dy = goY - (Location.Y + pictureBox1.Image.Height / 2);
                 g = Math.Sqrt(dx * dx + dy * dy);
 
+                //Установка значений "план" достижения области точки
                 SpeedX = CurSpeed * dx / g;
                 SpeedY = CurSpeed * dy / g;
 
@@ -332,13 +343,28 @@ namespace Aquarium
             }
 
             //Перевернём если собираемся в другом направлении
-            if ( ((SpeedX < 0) && (!isFlipped)) || ((SpeedX > 0) && (isFlipped)) )
+            if (((SpeedX < 0) && (!isFlipped)) || ((SpeedX > 0) && (isFlipped)))
             {
-                FishTexture.RotateFlip(RotateFlipType.RotateNoneFlipX);
-                pictureBox1.Image = FishTexture;
-                isFlipped = !isFlipped;
-            }
+                //state = 5;
+                if (rotationTicks >= RotationDelay)
+                {
+                    Texture.RotateFlip(RotateFlipType.RotateNoneFlipX);
+                    pictureBox1.Image = Texture;
+                    isFlipped = !isFlipped;
+                    rotationTicks = 0;
+                }
+                else
+                {
+                    rotationTicks += (uint)dt;
+                    //Надо как-то отключить перемещение у рыбы, чтобы это не вызвало проблем
+                    //Состояние 5?
+                    //Решено сильно замедлять рыбу
+                    SpeedX /= 10;
+                    SpeedY /= 10;
 
+                }
+            }
+            //}
             rx += SpeedX * dt / 1000;
             ry += SpeedY * dt / 1000;
 
@@ -347,7 +373,32 @@ namespace Aquarium
         }
         private void Fish_FormClosing(object sender, FormClosingEventArgs e)
         {
-            
+
         }
+    }
+
+    public class Predator : Fish
+    {
+        public int sharpvision;
+        public override void Update(int dt)
+        {
+
+        }
+        //public override void FindFood(int dt)
+        //{
+
+        //}
+
+        //public override void Move(int dt)
+        //{
+
+        //}
+
+        //public override void ChangeState(int dt)
+        //{
+
+        //}
+
+
     }
 }

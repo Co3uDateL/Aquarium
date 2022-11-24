@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Aquarium
@@ -16,17 +11,61 @@ namespace Aquarium
         List<Fish> Fishies = new List<Fish>();
         Fish tempFish = new Fish();
 
-        private void InitFish(string pName)
+        /// <summary>
+        /// Создаёт экземляр класса "Рыба" с заданными свойствами
+        /// </summary>
+        /// <param name="pName">Название текстуры</param>
+        /// <param name="pMaxSpeedConst">Стандартная скорость рыбы</param>
+        /// <param name="pcursorFear">Боиться ли курсора</param>
+        /// <param name="pMemoryLasts">Сколько длиться испуг</param>
+        /// <param name="pFov">Радиус в котором рыба видит угрозу</param>
+        /// <param name="pTriggeredMultiplier">Множитель ускорения рыбы во время испуга</param>
+        public void InitFish(string pName, int pMaxSpeedConst, bool pcursorFear, uint pMemoryLasts, int pFov, double pTriggeredMultiplier, uint pRotationDelay)
         {
-            tempFish = new Fish(pName);
+            tempFish = new Fish(pName, pMaxSpeedConst, pcursorFear, pMemoryLasts, pFov, pTriggeredMultiplier, pRotationDelay);
             Fishies.Add(tempFish);
             Fishies[Fishies.Count - 1].Show();
         }
-        private void InitFish(string pName, int pMaxSpeedConst, uint pMemoryLasts, int pFov, double pTriggeredMultiplier)
+        public void InitFish(string pName)
         {
-            tempFish = new Fish(pName, pMaxSpeedConst, pMemoryLasts, pFov, pTriggeredMultiplier);
-            Fishies.Add(tempFish);
-            Fishies[Fishies.Count - 1].Show();
+            switch (pName)
+            {
+                //Рыба клоун
+                //Шустрая рыбка с средними параметрами
+                case "1":
+                    {
+                        InitFish(pName, 250, true, 1000, 150, 3, 50);
+                        break;
+                    }
+                //Карликовый удильщик
+                //Медленная рыба, хищник, охотится из засады
+                case "2":
+                    {
+                        InitFish(pName, 100, true, 100, 300, 5, 250);
+                        break;
+                    }
+                //Карликовая акула
+                //Быстрый хищник, охотится на мелкую рыбу за счёт скорости, но плохо видит
+                case "3":
+                    {
+                        InitFish(pName, 500, false, 500, 125, 2, 75);
+                        break;
+                    }
+                //Рыба клоун
+                //Большая пугливая рыбка
+                case "4":
+                    {
+                        InitFish(pName, 300, true, 2500, 150, 0.01, 100);
+                        break;
+                    }
+                //Рыба клоун
+                //Маленькая рыбка с отличным зрением
+                case "5":
+                    {
+                        InitFish(pName, 200, true, 300, 700, 4, 30);
+                        break;
+                    }
+            }
         }
 
         private void cMenuNewFish(object sender, EventArgs e)
@@ -47,13 +86,13 @@ namespace Aquarium
                     x.cursorFear = true;
                 }
             }
-                else
+            else
+            {
+                foreach (Fish x in Fishies)
                 {
-                    foreach (Fish x in Fishies)
-                    {
-                        x.cursorFear = false;
-                    }
+                    x.cursorFear = false;
                 }
+            }
 
 
             cMenuFeedEnable.Checked = !cMenuFeedEnable.Checked;
@@ -90,55 +129,92 @@ namespace Aquarium
 
         private void f1(object sender, EventArgs e)
         {
-            //        Название файла текстуры рыбы
-            //        |   Скорость в обычном состоянии
-            //        |   |    Как долго будет напугана
-            //        |   |    |     Как далеко видит опасность
-            //        |   |    |     |   Множитель ускорения во время испуга
-            InitFish("1", 200, 500, 250, 4);
+            InitFish("1");
         }
         private void f2(object sender, EventArgs e)
         {
-            //        Название файла текстуры рыбы
-            //        |   Скорость в обычном состоянии
-            //        |   |    Как долго будет напугана
-            //        |   |    |     Как далеко видит опасность
-            //        |   |    |     |   Множитель ускорения во время испуга
-            InitFish("2", 10, 100, 100, 10);
-
+            InitFish("2");
         }
         private void f3(object sender, EventArgs e)
         {
-            //        Название файла текстуры рыбы
-            //        |   Скорость в обычном состоянии
-            //        |   |    Как долго будет напугана
-            //        |   |    |     Как далеко видит опасность
-            //        |   |    |     |   Множитель ускорения во время испуга
-            InitFish("3", 100, 100, 100, 20);
-
+            InitFish("3");
         }
         private void f4(object sender, EventArgs e)
         {
-            //        Название файла текстуры рыбы
-            //        |   Скорость в обычном состоянии
-            //        |   |    Как долго будет напугана
-            //        |   |    |     Как далеко видит опасность
-            //        |   |    |     |   Множитель ускорения во время испуга
-            InitFish("4", 100, 100, 100, 0.01F);
+            InitFish("4");
         }
         private void f5(object sender, EventArgs e)
         {
-            //        Название файла текстуры рыбы
-            //        |   Скорость в обычном состоянии
-            //        |   |    Как долго будет напугана
-            //        |   |    |     Как далеко видит опасность
-            //        |   |    |     |   Множитель ускорения во время испуга
-            InitFish("5", 100, 100, 100, 2);
+            InitFish("5");
         }
+
 
         private void Aquarium_FormClosed(object sender, FormClosedEventArgs e)
         {
             trayIcon.Visible = false;
         }
     }
+
+    public class GraphicObject : Form
+    {
+        protected Bitmap Texture;
+        protected int x, y;
+
+        public GraphicObject()
+        {
+
+        }
+
+        public void LoadFromFile()
+        {
+
+        }
+        public void Draw()
+        {
+
+        }
+        public virtual void gMove()
+        {
+
+        }
+
+    }
+    public class Particle : GraphicObject
+    {
+        private int AnimationTicks;
+        public bool deleted;
+
+        public void Animate(int dt)
+        {
+            gMove();
+        }
+
+    }
+    public class GameObject : GraphicObject
+    {
+        protected double rx, ry;
+
+        public GameObject()
+        {
+
+        }
+        public override void gMove()
+        {
+
+        }
+        public bool IsCollidingWith(GameObject target)
+        {
+            return false;
+        }
+
+    }
+    public class Food : GameObject
+    {
+        public int calories;
+        public int size;
+        public Color color;
+        public int smell;
+        public int disguised;
+    }
+
 }

@@ -44,7 +44,6 @@ namespace Aquarium
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
             this.pictureBox1.WaitOnLoad = true;
-            this.pictureBox1.Click += new System.EventHandler(this.MainForm_Click);
             // 
             // Fish
             // 
@@ -64,8 +63,8 @@ namespace Aquarium
             this.Text = "Fish";
             this.TopMost = true;
             this.TransparencyKey = System.Drawing.Color.Transparent;
-            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.Fish_DragEnter);
-            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Fish_MouseClick);
+            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Fish_MouseDown);
+            this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Fish_MouseUp);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
 
