@@ -77,27 +77,6 @@ namespace Aquarium
             f5(sender, e);
         }
 
-        private void cMenuEnableFeeding(object sender, EventArgs e)
-        {
-            if (cMenuFeedEnable.CheckState == CheckState.Checked)
-            {
-                foreach (Fish x in Fishies)
-                {
-                    x.cursorFear = true;
-                }
-            }
-            else
-            {
-                foreach (Fish x in Fishies)
-                {
-                    x.cursorFear = false;
-                }
-            }
-
-
-            cMenuFeedEnable.Checked = !cMenuFeedEnable.Checked;
-        }
-
         private void cMenuExit(object sender, EventArgs e)
         {
             trayIcon.Visible = false;
@@ -153,68 +132,6 @@ namespace Aquarium
         {
             trayIcon.Visible = false;
         }
-    }
-
-    public class GraphicObject : Form
-    {
-        protected Bitmap Texture;
-        protected int x, y;
-
-        public GraphicObject()
-        {
-
-        }
-
-        public void LoadFromFile()
-        {
-
-        }
-        public void Draw()
-        {
-
-        }
-        public virtual void gMove()
-        {
-
-        }
-
-    }
-    public class Particle : GraphicObject
-    {
-        private int AnimationTicks;
-        public bool deleted;
-
-        public void Animate(int dt)
-        {
-            gMove();
-        }
-
-    }
-    public class GameObject : GraphicObject
-    {
-        protected double rx, ry;
-
-        public GameObject()
-        {
-
-        }
-        public override void gMove()
-        {
-
-        }
-        public bool IsCollidingWith(GameObject target)
-        {
-            return false;
-        }
-
-    }
-    public class Food : GameObject
-    {
-        public int calories;
-        public int size;
-        public Color color;
-        public int smell;
-        public int disguised;
     }
 
 }

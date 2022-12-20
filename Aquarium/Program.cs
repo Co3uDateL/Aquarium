@@ -12,10 +12,9 @@ namespace Aquarium
 
         static void Main()
         {
-
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Aquarium { });
+            Application.Run(new GraphicObject() { });
         }
     }
 }
