@@ -14,7 +14,7 @@ namespace Aquarium
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new GraphicObject() { });
+            Application.Run(new Aquarium() { });
         }
     }
 }

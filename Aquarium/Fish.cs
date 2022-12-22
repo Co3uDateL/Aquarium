@@ -188,7 +188,7 @@ namespace Aquarium
         public Fish(string name)
         {
             InitializeComponent();
-            InitializeBitmap(name);
+            InitializeBitmap("fish/" + name);
             TransparencyKey = BackColor;
 
             CurSpeed = MaxSpeedConst;
@@ -197,7 +197,7 @@ namespace Aquarium
         public Fish(string name, int pMaxSpeedConst, bool pcursorFear, uint pMemoryLasts, int pFov, double pTriggeredMultiplier, uint pRotationDelay)
         {
             InitializeComponent();
-            InitializeBitmap(name);
+            InitializeBitmap("fish/"+name);
             TransparencyKey = BackColor;
 
             cursorFear = pcursorFear;
@@ -211,7 +211,7 @@ namespace Aquarium
             TriggeredSpeed = CurSpeed * TriggeredSpeedMultiplier;
         }
 
-        public virtual void Update(int dt)
+        public override void Update(int dt)
         {
             //TODO switch
             //TODO Выделить состояния в отдельные методы с текстовыми названиями

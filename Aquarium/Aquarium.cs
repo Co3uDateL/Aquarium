@@ -8,8 +8,7 @@ namespace Aquarium
 
     public partial class Aquarium : Form
     {
-        List<Fish> Fishies = new List<Fish>();
-        Fish tempFish = new Fish();
+        public List<GameObject> GameObjects = new List<GameObject>();
 
         /// <summary>
         /// Создаёт экземляр класса "Рыба" с заданными свойствами
@@ -22,9 +21,12 @@ namespace Aquarium
         /// <param name="pTriggeredMultiplier">Множитель ускорения рыбы во время испуга</param>
         public void InitFish(string pName, int pMaxSpeedConst, bool pcursorFear, uint pMemoryLasts, int pFov, double pTriggeredMultiplier, uint pRotationDelay)
         {
+            Fish tempFish = new Fish();
             tempFish = new Fish(pName, pMaxSpeedConst, pcursorFear, pMemoryLasts, pFov, pTriggeredMultiplier, pRotationDelay);
-            Fishies.Add(tempFish);
-            Fishies[Fishies.Count - 1].Show();
+            //Fishies.Add(tempFish);
+            //Fishies[Fishies.Count - 1].Show();
+            GameObjects.Add(tempFish);
+            GameObjects[GameObjects.Count - 1].Show();
         }
         public void InitFish(string pName)
         {
@@ -94,15 +96,13 @@ namespace Aquarium
             TransparencyKey = BackColor;
 
             timer.Start();
-
-            f1(this, EventArgs.Empty);
         }
 
-        private void UpdateFishies(object sender, EventArgs e)
+        private void UpdateAll(object sender, EventArgs e)
         {
-            foreach (Fish x in Fishies)
+            foreach (GameObject g in GameObjects)
             {
-                x.Update(timer.Interval);
+                g.Update(timer.Interval);
             }
         }
 
@@ -127,10 +127,24 @@ namespace Aquarium
             InitFish("5");
         }
 
-
         private void Aquarium_FormClosed(object sender, FormClosedEventArgs e)
         {
             trayIcon.Visible = false;
+        }
+
+        private void NewGO(object sender, EventArgs e)
+        {
+            GraphicObject temp_grO = new GraphicObject( GraphicObject.TexturePath+"misc/castle.png" );
+        }
+
+        private void NewGameO(object sender, EventArgs e)
+        {
+            //GameObject temp_gaO = new GameObject("misc/castle.png");
+        }
+
+        private void NewFood(object sender, EventArgs e)
+        {
+            //Food temp_gaO = new Food();
         }
     }
 

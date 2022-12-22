@@ -17,12 +17,16 @@ namespace Aquarium
     public partial class GraphicObject : Form
     {
         //const не подходит, так как часть пути /../../ берётся из консоли уже после запуска приложения
+        // из Aquarium/bin/Debug
+        // в  Aquarium/data/textures/
         public static readonly string TexturePath = "/../../data/textures/";
 
         /* readonly - поля и статичные методы */
         public static readonly int ScrW = Screen.PrimaryScreen.Bounds.Width;
         public static readonly int ScrH = Screen.PrimaryScreen.Bounds.Height;
         public static readonly Point ScrBounds = new Point(ScrW, ScrH);
+        //Определяет "пол" симуляции - на панели задач
+        public static readonly int floorY = Screen.PrimaryScreen.WorkingArea.Bottom;
 
         /// <summary>
         /// Определяет ближе ли точка p к 0; 0; чем bounds
@@ -57,7 +61,7 @@ namespace Aquarium
         {
             try
             {
-                //return new Bitmap(path);
+                return new Bitmap(path);
             }
             catch (System.IO.FileNotFoundException)
             {
@@ -68,11 +72,17 @@ namespace Aquarium
             catch (System.IO.FileLoadException)
             {
                 MessageBox.Show("Произошла ошибка!" +
-                    "Не удалось загрузить картинку" +
-                    "По пути: " + path);
+                    "Не удалось загрузить картинку");
+            }
+            catch (ArgumentException ae)
+            {
+                
+                MessageBox.Show("Произошло что-то непонятное\n" +
+                    "Оглядывайтесь вверх и по сторонам\n" +
+                    "Его имя: " + ae.ParamName); 
             }
 
-            return new Bitmap(path);
+            return null;
         }
 
         /* Методы класса 
@@ -86,21 +96,32 @@ namespace Aquarium
              + Устраняет дублирование
             (+) Учебные цели
          */
-        /// <summary>
-        /// Устанавливает изображение формы на загруженное по переданному пути
-        /// </summary>
-        /// <param name="path"></param>
-        public void SetImage(string path)
-        {
-            BackgroundImage = GetImage(TexturePath + path);
-        }
+
         /// <summary>
         /// Устанавливает изображение формы на переданное
         /// </summary>
         /// <param name="sample"></param>
         public void SetImage(Image sample)
         {
+            if (BackgroundImage != null)
+            {
+                BackgroundImage.Dispose();
+            }
+
+            if (sample == null)
+            {
+                sample = new Bitmap( TexturePath + "error.png" );
+            }
+
             BackgroundImage = sample;
+        }
+        /// <summary>
+        /// Устанавливает изображение формы на загруженное по переданному пути
+        /// </summary>
+        /// <param name="path"></param>
+        public void SetImage(string path)
+        {
+            SetImage( GetImage(path) );
         }
         /// <summary>
         /// Устанавливает изображение формы на изображение донора
@@ -108,7 +129,7 @@ namespace Aquarium
         /// <param name="donor"></param>
         public void SetImage(GraphicObject donor)
         {
-            SetImage(BackgroundImage);
+            SetImage(donor.BackgroundImage);
         }
 
         /* Конструкторы класса */
@@ -136,7 +157,7 @@ namespace Aquarium
             this.Hide();
                 //Чтобы избежать странных изменений формы при её создании, сделаем все присваивания в фоновом режиме
                 TransparencyKey = BackColor; //White
-                SetImage(TexturePath + path);
+                SetImage(path);
             this.Show();
         }
 
@@ -177,16 +198,24 @@ namespace Aquarium
         /// <summary>
         /// Мгновенно передвинет левый верхний угол формы в заданные координаты
         /// </summary>
-        public virtual void gMove(int x, int y)
+        public virtual void gMoveTo(int x, int y)
         {
             Location = new Point(x, y);
         }
         /// <summary>
         /// Мгновенно передвинет левый верхний угол формы в заданную точку
         /// </summary>
-        public virtual void gMove(Point p)
+        public virtual void gMoveTo(Point p)
         {
             Location = p;
+        }
+        //Чтобы избежать переопределения наследуемого события Move, будет использовано название gMove (general Move)
+        /// <summary>
+        /// Мгновенно передвинет левый верхний угол формы в заданные координаты
+        /// </summary>
+        public virtual void gMoveOn(int dx, int dy)
+        {
+            Location = new Point(Location.X + dx, Location.Y + dy);
         }
     }
     /// <summary>
@@ -201,19 +230,23 @@ namespace Aquarium
             rx = Location.X;
             ry = Location.Y;
         }
-        public override void gMove(int x, int y)
-        {
-            Location = new Point(x, y);
-        }
         public bool IsCollidingWith(GameObject target)
         {
+            
             return false;
         }
-
         public double GetCollidingForce(GameObject target)
         {
             
             return 0;
+        }
+        public virtual void Update(int dt)
+        {
+            //Гравитация и просчёт столкновений с другими объектами
+            if ( (this.Location.Y + this.Height) <= floorY )
+            {
+                gMoveOn(0, 1);
+            }
         }
 
     }
