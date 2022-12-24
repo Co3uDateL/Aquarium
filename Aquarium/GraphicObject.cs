@@ -16,10 +16,10 @@ namespace Aquarium
     /// </summary>
     public partial class GraphicObject : Form
     {
-        //const не подходит, так как часть пути /../../ берётся из консоли уже после запуска приложения
+        //const не подходит, так как часть пути ../../ берётся из консоли уже после запуска приложения
         // из Aquarium/bin/Debug
         // в  Aquarium/data/textures/
-        public static readonly string TexturePath = "/../../data/textures/";
+        public static readonly string TexturePath = "../Aquarium/data/textures/";
 
         /* readonly - поля и статичные методы */
         public static readonly int ScrW = Screen.PrimaryScreen.Bounds.Width;
@@ -59,9 +59,11 @@ namespace Aquarium
         }
         public static Bitmap GetImage(string path)
         {
+            Bitmap temp = null;
+
             try
             {
-                return new Bitmap(path);
+                temp = new Bitmap(path);
             }
             catch (System.IO.FileNotFoundException)
             {
@@ -76,13 +78,12 @@ namespace Aquarium
             }
             catch (ArgumentException ae)
             {
-                
                 MessageBox.Show("Произошло что-то непонятное\n" +
                     "Оглядывайтесь вверх и по сторонам\n" +
-                    "Его имя: " + ae.ParamName); 
+                    ""+path); 
             }
 
-            return null;
+            return temp;
         }
 
         /* Методы класса 
@@ -101,18 +102,21 @@ namespace Aquarium
         /// Устанавливает изображение формы на переданное
         /// </summary>
         /// <param name="sample"></param>
-        public void SetImage(Image sample)
+        public void SetImage(Bitmap sample)
         {
+            //Если есть старый объект - закроем его картинку, освободим ресурсы
             if (BackgroundImage != null)
             {
                 BackgroundImage.Dispose();
             }
 
+            //Если по какой-то причине в функцию не передана картинка, нарисуем ошибку
             if (sample == null)
             {
-                sample = new Bitmap( TexturePath + "error.png" );
+                sample = new Bitmap( "../../data/textures/error.png" );
             }
 
+            this.Size = sample.Size;
             BackgroundImage = sample;
         }
         /// <summary>
@@ -121,7 +125,8 @@ namespace Aquarium
         /// <param name="path"></param>
         public void SetImage(string path)
         {
-            SetImage( GetImage(path) );
+            Bitmap bitmap = GetImage(path);
+            SetImage( bitmap );
         }
         /// <summary>
         /// Устанавливает изображение формы на изображение донора
@@ -129,7 +134,7 @@ namespace Aquarium
         /// <param name="donor"></param>
         public void SetImage(GraphicObject donor)
         {
-            SetImage(donor.BackgroundImage);
+            SetImage((Bitmap)donor.BackgroundImage);
         }
 
         /* Конструкторы класса */
@@ -154,8 +159,8 @@ namespace Aquarium
         public GraphicObject(string path)
         {
             InitializeComponent();
+            //Чтобы избежать странных изменений формы при её создании, сделаем все присваивания в фоновом режиме
             this.Hide();
-                //Чтобы избежать странных изменений формы при её создании, сделаем все присваивания в фоновом режиме
                 TransparencyKey = BackColor; //White
                 SetImage(path);
             this.Show();
@@ -165,7 +170,7 @@ namespace Aquarium
         /// Создаёт графический объект из объекта Image
         /// </summary>
         /// <param name="path"></param>
-        public GraphicObject(Image sample)
+        public GraphicObject(Bitmap sample)
         {
             InitializeComponent();
             this.Hide();
@@ -186,7 +191,7 @@ namespace Aquarium
             this.Hide();
             //Чтобы избежать странных изменений формы при её создании, сделаем все присваивания в фоновом режиме
                 TransparencyKey = BackColor; //White
-                SetImage(sample.BackgroundImage);
+                SetImage((Bitmap)sample.BackgroundImage);
                 Location = sample.Location;
                 Size = sample.Size;
                 AutoSizeMode = sample.AutoSizeMode;

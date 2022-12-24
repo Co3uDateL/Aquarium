@@ -134,7 +134,7 @@ namespace Aquarium
 
         private void NewGO(object sender, EventArgs e)
         {
-            GraphicObject temp_grO = new GraphicObject( GraphicObject.TexturePath+"misc/castle.png" );
+            GraphicObject temp_grO = new GraphicObject("../../data/textures/objects/castle.png");
         }
 
         private void NewGameO(object sender, EventArgs e)
