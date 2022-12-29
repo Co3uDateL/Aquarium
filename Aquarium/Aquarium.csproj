@@ -74,12 +74,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Fish.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Fish.Designer.cs">
-      <DependentUpon>Fish.cs</DependentUpon>
-    </Compile>
     <Compile Include="Aquarium.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -94,11 +88,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Fish.resx">
-      <DependentUpon>Fish.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Aquarium.resx">
       <DependentUpon>Aquarium.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="GraphicObject.resx">
       <DependentUpon>GraphicObject.cs</DependentUpon>

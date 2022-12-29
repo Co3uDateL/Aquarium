@@ -12,9 +12,6 @@ namespace Aquarium
         public static Random random = new Random();
         public static readonly string TexturePath = "../Aquarium/data/textures/";
 
-        private bool placing = false;
-        private GraphicObject selectedObject;
-
         /// <summary>
         /// Создаёт экземляр класса "Рыба" с заданными свойствами
         /// </summary>
@@ -26,11 +23,7 @@ namespace Aquarium
         /// <param name="pTriggeredMultiplier">Множитель ускорения рыбы во время испуга</param>
         public void InitFish(string pName, int pMaxSpeedConst, bool pcursorFear, uint pMemoryLasts, int pFov, double pTriggeredMultiplier, uint pRotationDelay)
         {
-            Fish tempFish = new Fish();
-            tempFish = new Fish(pName, pMaxSpeedConst, pcursorFear, pMemoryLasts, pFov, pTriggeredMultiplier, pRotationDelay);
-            //Fishies.Add(tempFish);
-            //Fishies[Fishies.Count - 1].Show();
-            GameObjects.Add(tempFish);
+            GameObjects.Add(new Fish(pName, pMaxSpeedConst, pcursorFear, pMemoryLasts, pFov, pTriggeredMultiplier, pRotationDelay));
             GameObjects[GameObjects.Count - 1].Show();
         }
         public void InitFish(string name)
