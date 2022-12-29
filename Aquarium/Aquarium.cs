@@ -9,6 +9,11 @@ namespace Aquarium
     public partial class Aquarium : Form
     {
         public List<GameObject> GameObjects = new List<GameObject>();
+        public static Random random = new Random();
+        public static readonly string TexturePath = "../Aquarium/data/textures/";
+
+        private bool placing = false;
+        private GraphicObject selectedObject;
 
         /// <summary>
         /// Создаёт экземляр класса "Рыба" с заданными свойствами
@@ -28,43 +33,76 @@ namespace Aquarium
             GameObjects.Add(tempFish);
             GameObjects[GameObjects.Count - 1].Show();
         }
-        public void InitFish(string pName)
+        public void InitFish(string name)
         {
-            switch (pName)
+            switch (name)
             {
                 //Рыба клоун
                 //Шустрая рыбка с средними параметрами
                 case "1":
                     {
-                        InitFish(pName, 250, true, 1000, 150, 3, 50);
+                        InitFish(name, 250, true, 1000, 150, 3, 50);
                         break;
                     }
                 //Карликовый удильщик
                 //Медленная рыба, хищник, охотится из засады
                 case "2":
                     {
-                        InitFish(pName, 100, true, 100, 300, 5, 250);
+                        InitFish(name, 100, true, 100, 300, 5, 250);
                         break;
                     }
                 //Карликовая акула
                 //Быстрый хищник, охотится на мелкую рыбу за счёт скорости, но плохо видит
                 case "3":
                     {
-                        InitFish(pName, 500, false, 500, 125, 2, 75);
+                        InitFish(name, 500, false, 500, 125, 2, 75);
                         break;
                     }
                 //Рыба клоун
                 //Большая пугливая рыбка
                 case "4":
                     {
-                        InitFish(pName, 300, true, 2500, 150, 0.01, 100);
+                        InitFish(name, 300, true, 2500, 150, 0.01, 100);
                         break;
                     }
                 //Рыба клоун
                 //Маленькая рыбка с отличным зрением
                 case "5":
                     {
-                        InitFish(pName, 200, true, 300, 700, 4, 30);
+                        InitFish(name, 200, true, 300, 700, 4, 30);
+                        break;
+                    }
+            }
+        }
+
+        public void InitGameObject(string path, double scale, double Fa, int x, int y,  bool colidingEnabled)
+        {
+            GameObjects.Add( new GameObject(path, scale, Fa, x, y,  colidingEnabled) );
+        }
+
+        public void InitGameObject(string name, int x, int y)
+        {
+            //По какой-то причине конкатенация строк вызывает исключение неправильного аргумента
+            switch (name)
+            {
+                case "castle":
+                    {
+                        InitGameObject("../../data/textures/object/" + name + ".png", (random.Next(80, 120) / 100), 10, x, y, true) ;
+                        break;
+                    }
+                case "shell":
+                    {
+                        InitGameObject("../../data/textures/object/" + name + ".png", (random.Next(40, 200) / 100), 0.05, x, y, true);
+                        break;
+                    }
+                case "rock":
+                    {
+                        InitGameObject("../../data/textures/object/" + name + ".png", (random.Next(20, 400) / 100), 2, x, y, true);
+                        break;
+                    }
+                case "weed":
+                    {
+                        InitGameObject("../../data/textures/object/" + name + ".png", (random.Next(100, 300) / 100), 0.6, x, y, true);
                         break;
                     }
             }
@@ -97,6 +135,8 @@ namespace Aquarium
 
             timer.Start();
         }
+
+
 
         private void UpdateAll(object sender, EventArgs e)
         {
@@ -134,17 +174,33 @@ namespace Aquarium
 
         private void NewGO(object sender, EventArgs e)
         {
-            GraphicObject temp_grO = new GraphicObject("../../data/textures/objects/castle.png");
+            GraphicObject temp_grO = new GraphicObject("../../data/textures/object/castle.png", 1, 500, 100);
         }
 
         private void NewGameO(object sender, EventArgs e)
         {
-            //GameObject temp_gaO = new GameObject("misc/castle.png");
+            //InitGameObject("weed", 500, 500);
+            InitGameObject("../../data/textures/object/shell.png", (random.Next(80, 120) / 100), 1, 800, 800, true);
         }
 
         private void NewFood(object sender, EventArgs e)
         {
             //Food temp_gaO = new Food();
+        }
+
+        private void PlaceShell(object sender, EventArgs e)
+        {
+            InitGameObject("shell", random.Next(0, GraphicObject.ScrW), random.Next(0, GraphicObject.ScrH));
+        }
+
+        private void PlaceWeed(object sender, EventArgs e)
+        {
+            InitGameObject("weed", random.Next(0, GraphicObject.ScrW), random.Next(0, GraphicObject.ScrH));
+        }
+
+        private void PlaceRock(object sender, EventArgs e)
+        {
+            InitGameObject("rock", random.Next(0, GraphicObject.ScrW), random.Next(0, GraphicObject.ScrH));
         }
     }
 

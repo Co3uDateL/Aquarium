@@ -99,11 +99,6 @@ namespace Aquarium
         private int goTX, goTY;
 
         /// <summary>
-        /// Реальное положение рыбы
-        /// </summary>
-        private double rx = rnd.Next(0, maxx), ry = rnd.Next(0, maxy);
-
-        /// <summary>
         /// Скорость рыбы по осям Х и У
         /// </summary>
         private double SpeedX, SpeedY;
@@ -184,6 +179,9 @@ namespace Aquarium
             //Растянем/Сузим форму под изображение
             this.Width = Texture.Width;
             this.Height = Texture.Height;
+
+            rx = rnd.Next(0, maxx);
+            ry = rnd.Next(0, maxy);
         }
         public Fish(string name)
         {
@@ -193,6 +191,9 @@ namespace Aquarium
 
             CurSpeed = MaxSpeedConst;
             TriggeredSpeed = CurSpeed * TriggeredSpeedMultiplier;
+
+            rx = rnd.Next(0, maxx);
+            ry = rnd.Next(0, maxy);
         }
         public Fish(string name, int pMaxSpeedConst, bool pcursorFear, uint pMemoryLasts, int pFov, double pTriggeredMultiplier, uint pRotationDelay)
         {
@@ -209,6 +210,9 @@ namespace Aquarium
             RotationDelay = pRotationDelay;
             TriggeredSpeedMultiplier = pTriggeredMultiplier;
             TriggeredSpeed = CurSpeed * TriggeredSpeedMultiplier;
+
+            rx = rnd.Next(0, maxx);
+            ry = rnd.Next(0, maxy);
         }
 
         public override void Update(int dt)
