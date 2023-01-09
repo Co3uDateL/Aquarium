@@ -379,29 +379,30 @@ namespace Aquarium
             this.Show();
         }
 
-        public virtual void DragAndDropStart(object sender, MouseEventArgs e)
+        private void eDragAndDropStart(object sender, MouseEventArgs e)
         {
-            //no Drag&Drop for GraphicObject
-            //Взять за центр
-            IsDragged = true;
-            DragAndDropOffestX = MousePosition.X - Location.X;
-            DragAndDropOffestY = MousePosition.Y - Location.Y;
+            DragAndDropStart();
         }
 
-        public virtual void DragAndDropMove(object sender, MouseEventArgs e)
+        private void eDragAndDropMove(object sender, MouseEventArgs e)
         {
-            if (IsDragged)
-            {
-                Location = new Point(MousePosition.X - DragAndDropOffestX, MousePosition.Y - DragAndDropOffestY);
-            }
+            DragAndDropMove();
         }
 
-        public virtual void DragAndDropEnd(object sender, MouseEventArgs e)
+        private void eDragAndDropEnd(object sender, MouseEventArgs e)
         {
-            //no Drag&Drop for GraphicObject
-            IsDragged = false;
+            DragAndDropEnd();
         }
 
+        public virtual void DragAndDropStart()
+        {
+        }
+        public virtual void DragAndDropMove()
+        {
+        }
+        public virtual void DragAndDropEnd()
+        {
+        }
     }
     /// <summary>
     /// Игровой объект
@@ -464,7 +465,8 @@ namespace Aquarium
             //{
             //    ty = topY;
             //}
-
+            rx = tx;
+            ry = ty;
             Location = new Point((int) tx, (int) ty);
         }
         public virtual void gMoveOn(double dRx, double dRy)
@@ -479,12 +481,15 @@ namespace Aquarium
         /// </summary>
         public virtual void Fall()
         {
-            if (Acceleration != LastAcceleration)
-            {
-                Acceleration = LastAcceleration;
-            }
+            //if (Acceleration != LastAcceleration)
+            //{
+            //    Acceleration = LastAcceleration;
+            //}
 
+            //TODO Переделать, что это вообще за ужас
+            Acceleration = LastAcceleration;
             SpeedY += Acceleration;
+
             //TODO Coliding
 
             //Низ картинки будет ниже пола?
@@ -498,26 +503,36 @@ namespace Aquarium
             else
             {
                 //Выше потолка
-                if (Location.Y + SpeedY < topY)
+                if (Location.Y + SpeedY <= topY)
                 {
-                    gMoveTo(Location.X, topY);
+                    gMoveTo(Location.X, topY+1);
                     Acceleration = 0;
                     SpeedY = 0;
                 }
                 //Норм
                 else
                 {
-                    
                     gMoveOn(0, SpeedY);
                 }
             }
         }
 
-        public override void DragAndDropMove(object sender, MouseEventArgs e)
+        public override void DragAndDropStart()
         {
-            base.DragAndDropMove(sender, e);
-            rx = Location.X;
-            ry = Location.Y;
+            //no Drag&Drop for GraphicObject
+            //Взять за центр
+            IsDragged = true;
+            DragAndDropOffestX = MousePosition.X - Location.X;
+            DragAndDropOffestY = MousePosition.Y - Location.Y;
+        }
+        public override void DragAndDropMove()
+        {
+            if (IsDragged) { gMoveTo(MousePosition.X - DragAndDropOffestX, MousePosition.Y - DragAndDropOffestY); } 
+        }
+        public override void DragAndDropEnd()
+        {
+            //no Drag&Drop for GraphicObject
+            IsDragged = false;
         }
         public virtual void Update(int dt)
         {
@@ -711,8 +726,9 @@ namespace Aquarium
             CurSpeed = MaxSpeedConst;
             TriggeredSpeed = CurSpeed * TriggeredSpeedMultiplier;
 
-            rx = Aquarium.random.Next(0, ScrH);
-            ry = Aquarium.random.Next(0, ScrW);
+            rx = Aquarium.random.Next(0, ScrW);
+            ry = Aquarium.random.Next(topY, floorY);
+            gMoveTo(rx, ry);
         }
         public Fish(string path, int pMaxSpeedConst, bool pcursorFear, uint pMemoryLasts, int pFov, double pTriggeredMultiplier, uint pRotationDelay)
             : base(path)
@@ -731,8 +747,9 @@ namespace Aquarium
             TriggeredSpeedMultiplier = pTriggeredMultiplier;
             TriggeredSpeed = CurSpeed * TriggeredSpeedMultiplier;
 
-            rx = Aquarium.random.Next(0, ScrH);
-            ry = Aquarium.random.Next(0, ScrW);
+            rx = Aquarium.random.Next(0, ScrW);
+            ry = Aquarium.random.Next(topY, floorY);
+            gMoveTo(rx, ry);
         }
 
         public override void Update(int dt)
