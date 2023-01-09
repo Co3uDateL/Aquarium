@@ -46,6 +46,9 @@
             this.Text = "GraphicObject";
             this.TopMost = true;
             this.TransparencyKey = System.Drawing.Color.White;
+            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.DragAndDropStart);
+            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.DragAndDropMove);
+            this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.DragAndDropEnd);
             this.ResumeLayout(false);
 
         }

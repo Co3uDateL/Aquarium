@@ -30,6 +30,10 @@ namespace Aquarium
         /// </summary>
         public static readonly int floorY = Screen.PrimaryScreen.WorkingArea.Bottom;
         public static readonly int topY = Screen.PrimaryScreen.WorkingArea.Top + 200;
+
+        public bool IsDragged = false;
+        public int DragAndDropOffestX = 0;
+        public int DragAndDropOffestY = 0;
         public static bool InScrBounds(Point p)
         {
             //&& = если первый результат false, не сравнивать дальше
@@ -89,6 +93,19 @@ namespace Aquarium
 
             return temp;
         }
+        //static public Bitmap GetRandomBitmapFromDir(string path)
+        //{
+        //    string way = "../../textures/";
+        //    string[] files = Directory.GetFiles(way + path, "*.png", SearchOption.TopDirectoryOnly);
+        //    return new Bitmap(files[random.Next(files.Length)]);
+        //}
+        //static public Bitmap GetRandomBitmapFromDir(string path, out int id)
+        //{
+        //    string way = "../../textures/";
+        //    string[] files = Directory.GetFiles(way + path, "*.png", SearchOption.TopDirectoryOnly);
+        //    id = random.Next(files.Length);
+        //    return new Bitmap(files[id]);
+        //}
 
         /* Методы класса 
            Многие методы чрезмерно раздробленны, (функции состоят из одной строчки - вызова другой)
@@ -362,6 +379,29 @@ namespace Aquarium
             this.Show();
         }
 
+        public virtual void DragAndDropStart(object sender, MouseEventArgs e)
+        {
+            //no Drag&Drop for GraphicObject
+            //Взять за центр
+            IsDragged = true;
+            DragAndDropOffestX = MousePosition.X - Location.X;
+            DragAndDropOffestY = MousePosition.Y - Location.Y;
+        }
+
+        public virtual void DragAndDropMove(object sender, MouseEventArgs e)
+        {
+            if (IsDragged)
+            {
+                Location = new Point(MousePosition.X - DragAndDropOffestX, MousePosition.Y - DragAndDropOffestY);
+            }
+        }
+
+        public virtual void DragAndDropEnd(object sender, MouseEventArgs e)
+        {
+            //no Drag&Drop for GraphicObject
+            IsDragged = false;
+        }
+
     }
     /// <summary>
     /// Игровой объект
@@ -385,10 +425,10 @@ namespace Aquarium
         /// <summary>
         /// Ускорение по оси Y. (отрицательные значения для всплытия)
         /// </summary>
-        public double Fa = 0;
-
+        public double Acceleration = 0;
+        public double LastAcceleration = 0;
         public double SpeedY = 0;
-        //TODO Coliding
+        //TODO Colidings
         public bool IsCollidingWith(GameObject target)
         {
             //Rectangle Rec1 = new Rectangle(this.Location, this.Size);
@@ -412,21 +452,20 @@ namespace Aquarium
             //По теореме Пифагора диагональ d = sqrt( a^2 + b^2 )
             return Math.Sqrt( Math.Pow( intersection.Width, 2) + Math.Pow( intersection.Height, 2 ) );
         }
-
-        public virtual void gMoveTo(double rx, double ry)
+        public virtual void gMoveTo(double tx, double ty)
         {
-            //Высота картинки пробивает пол
-            if ( (ry + Height) > floorY)
-            {
-                ry = floorY - Height;
-            }
-            //Картинка пробивает потолок
-            else if (ry < topY)
-            {
-                ry = topY;
-            }
+            ////Высота картинки пробивает пол
+            //if ( (ty + Height) > floorY)
+            //{
+            //    ty = floorY - Height;
+            //}
+            ////Картинка пробивает потолок
+            //else if (ty < topY)
+            //{
+            //    ty = topY;
+            //}
 
-            Location = new Point((int) rx, (int) ry);
+            Location = new Point((int) tx, (int) ty);
         }
         public virtual void gMoveOn(double dRx, double dRy)
         {
@@ -434,16 +473,26 @@ namespace Aquarium
             ry += dRy;
             Location = new Point((int) rx, (int) ry);
         }
-        public virtual void Update(int dt)
+
+        /// <summary>
+        /// Подвергнуться действию гравитации
+        /// </summary>
+        public virtual void Fall()
         {
-            SpeedY += Fa;
+            if (Acceleration != LastAcceleration)
+            {
+                Acceleration = LastAcceleration;
+            }
+
+            SpeedY += Acceleration;
             //TODO Coliding
 
-            //Собирается ниже пола
-            if (Location.Y + Height + SpeedY > floorY)
+            //Низ картинки будет ниже пола?
+            if (Location.Y + BackgroundImage.Height + SpeedY + Acceleration > floorY)
             {
-                gMoveTo(Location.X, floorY - Height);
-                Fa = 0;
+                gMoveTo(Location.X, floorY - BackgroundImage.Height);
+                LastAcceleration = Acceleration;
+                Acceleration = 0;
                 SpeedY = 0;
             }
             else
@@ -452,47 +501,60 @@ namespace Aquarium
                 if (Location.Y + SpeedY < topY)
                 {
                     gMoveTo(Location.X, topY);
-                    Fa = 0;
+                    Acceleration = 0;
                     SpeedY = 0;
                 }
-            //Норм
+                //Норм
                 else
                 {
+                    
                     gMoveOn(0, SpeedY);
                 }
-
             }
-
-
-
         }
+
+        public override void DragAndDropMove(object sender, MouseEventArgs e)
+        {
+            base.DragAndDropMove(sender, e);
+            rx = Location.X;
+            ry = Location.Y;
+        }
+        public virtual void Update(int dt)
+        {
+            //В конце подвергнуться действию гравитцаии
+            if (!IsDragged)
+            {
+                Fall();
+            }
+        }
+
         public GameObject()
         {
             rx = Location.X;
             ry = Location.Y;
 
-            Fa = 500;
+            Acceleration = 500;
         }
         public GameObject(string path) : base(path)
         {
             rx = Location.X;
             ry = Location.Y;
 
-            Fa = 500;
+            Acceleration = 0;
         }
         public GameObject(string path, double scale) : base(path, scale)
         {
             rx = Location.X;
             ry = Location.Y;
 
-            Fa = 500;
+            Acceleration = 0;
         }
         public GameObject(string path, int width, int height) : base(path, width, height)
         {
             rx = Location.X;
             ry = Location.Y;
 
-            Fa = 500;
+            Acceleration = 0;
         }
         public GameObject(string path, double scale, double pFa, int x, int y,  bool pColidingEnabled) : base(path, scale, x, y)
         {
@@ -501,8 +563,8 @@ namespace Aquarium
             ry = Location.Y;
             ColidingEnabled = pColidingEnabled;
 
-
-            Fa = pFa;
+            Acceleration = pFa;
+            LastAcceleration = Acceleration;
         }
 
     }
@@ -639,51 +701,8 @@ namespace Aquarium
         /// <param name="g"> Гипотенуза (сумма векторов) = расстояние до мышки </param>
         /// 
         double dx, dy, g;
-        //--- --- ---
-        //TODO Перенести в GraphOBJ -- done
-        //private void InitializeBitmap(string name)
-        //{
-        //    try
-        //    {
-        //        Texture = (Bitmap)Bitmap.FromFile("../../data/textures/" + name + ".png");
-        //        pictureBox1.SizeMode = PictureBoxSizeMode.AutoSize;
-        //        BackgroundImage = Texture;
-        //    }
-        //    catch (System.IO.FileNotFoundException)
-        //    {
-        //        MessageBox.Show("There was an error." +
-        //            "Check the path to the bitmap.");
-        //    }
         //}
-
-        //TODO Drag & Drop
-        private void Fish_MouseDown(object sender, MouseEventArgs e)
-        {
-
-        }
-
-        private void Fish_MouseUp(object sender, MouseEventArgs e)
-        {
-
-        }
-
-        //public Fish()
-        //{
-        //    InitializeComponent();
-        //    InitializeBitmap("1");
-        //    TransparencyKey = BackColor; //White
-
-        //    CurSpeed = MaxSpeedConst;
-        //    TriggeredSpeed = CurSpeed * TriggeredSpeedMultiplier;
-
-        //    //Растянем/Сузим форму под изображение
-        //    this.Width = Texture.Width;
-        //    this.Height = Texture.Height;
-
-        //    rx = rnd.Next(0, maxx);
-        //    ry = rnd.Next(0, maxy);
-        //}
-        public Fish(string name) : base(name)
+        public Fish(string path) : base(path)
         {
             //InitializeComponent();
             //InitializeBitmap("fish/" + name);
@@ -695,8 +714,8 @@ namespace Aquarium
             rx = Aquarium.random.Next(0, ScrH);
             ry = Aquarium.random.Next(0, ScrW);
         }
-        public Fish(string name, int pMaxSpeedConst, bool pcursorFear, uint pMemoryLasts, int pFov, double pTriggeredMultiplier, uint pRotationDelay)
-            : base(name)
+        public Fish(string path, int pMaxSpeedConst, bool pcursorFear, uint pMemoryLasts, int pFov, double pTriggeredMultiplier, uint pRotationDelay)
+            : base(path)
         {
             //InitializeComponent();
             //InitializeBitmap("fish/"+name);
@@ -718,165 +737,168 @@ namespace Aquarium
 
         public override void Update(int dt)
         {
-            //TODO switch
-            //TODO Выделить состояния в отдельные методы с текстовыми названиями
-
-            //Если Мы в районе точки рандеву или .не знаем куда плыть
-            //По X: Левый угол формы - - - goX - - - Правый угол изображения
-
-            //Анализируем ситуацию вокруг, если условие - меняем состояние
-            //switch (state)
-            //{
-            if (state == 0)
-            //0:
+            //Активировать переключатель состояний если рыбу не перетягивают
+            if (!IsDragged)
             {
-                //Переключатель "Создать новую точку"
-                if ((Location.X - 100 < goX) && (goX < (Location.X + BackgroundImage.Width + 100)) || !isPathfinded)
+                //TODO switch
+                //TODO Выделить состояния в отдельные методы с текстовыми названиями
+
+                //Если Мы в районе точки рандеву или .не знаем куда плыть
+                //По X: Левый угол формы - - - goX - - - Правый угол изображения
+
+                //Анализируем ситуацию вокруг, если условие - меняем состояние
+                //switch (state)
+                //{
+                if (state == 0)
+                //0:
                 {
-                    //По Y: верхний угол формы - - - goY - - - Нижний угол изображения
-                    if ((Location.Y - 100 < goY) && (goY < (Location.Y + BackgroundImage.Height + 100)) || !isPathfinded)
-                    {
-                        state = 10;
-                    }
+                        //Переключатель "Создать новую точку"
+                        if ((Location.X - 100 < goX) && (goX < (Location.X + BackgroundImage.Width + 100)) || !isPathfinded)
+                        {
+                            //По Y: верхний угол формы - - - goY - - - Нижний угол изображения
+                            if ((Location.Y - 100 < goY) && (goY < (Location.Y + BackgroundImage.Height + 100)) || !isPathfinded)
+                            {
+                                state = 10;
+                            }
+
+                        }
+
+                        //Переключатель "Создать новую точку отступления от испуга"
+                        if (cursorFear)
+                        {
+                            dx = Control.MousePosition.X - (Location.X + BackgroundImage.Width / 2);
+                            dy = Control.MousePosition.Y - (Location.Y + BackgroundImage.Height / 2);
+                            g = Math.Sqrt(dx * dx + dy * dy);
+
+                            if ((g < fov) && (!isTriggered))
+                            {
+                                state = 15;
+                            }
+
+                        }
+
+                        //Переключатель "Успокоиться и вспомнить точку"
+                        if (isTriggered)
+                        {
+                            {
+                                if (memoryTicks < memoryLasts)
+                                {
+                                    memoryTicks += (uint)dt;
+                                }
+                                else
+                                {
+                                    memoryTicks = 0;
+                                    isTriggered = false;
+                                    goX = goTX;
+                                    goY = goTY;
+
+                                    CurSpeed = MaxSpeedConst;
+
+                                    state = 0;
+                                }
+
+                            }
+                        }
 
                 }
 
-                //Переключатель "Создать новую точку отступления от испуга"
-                if (cursorFear)
+                //Ищем новую точку если требуют состояния, с их целями
+                if ((state >= 10) && (state < 20))
                 {
-                    dx = Control.MousePosition.X - (Location.X + BackgroundImage.Width / 2);
-                    dy = Control.MousePosition.Y - (Location.Y + BackgroundImage.Height / 2);
+                    //Генерация новой точки
+                    if (state == 10)
+                    {
+                        goX = Aquarium.random.Next(ScrW) - Width;
+                        goY = Aquarium.random.Next(ScrH) - Height;
+                    }
+
+                    //Поиск точки побега при испуге
+                    if (state == 15)
+                    {
+                        goTX = goX;
+                        goTY = goY;
+
+                        isTriggered = true;
+
+                        CurSpeed = TriggeredSpeed;
+
+                        //TODO case
+                        //Курсор в поле зрения!
+                        //Приближается справа, справа-сверху, сверху
+                        if ((dx >= 0) & (dy >= 0))
+                        {
+                            //Сгенерируем новую точку и придумаем как её достичь
+                            goX = Aquarium.random.Next(0, Control.MousePosition.X) - BackgroundImage.Width;
+                            goY = Aquarium.random.Next(Control.MousePosition.Y, ScrH) - BackgroundImage.Height;
+                        }
+                        //Приближается справа - снизу 
+                        if ((dx > 0) & (dy < 0))
+                        {
+                            goX = Aquarium.random.Next(0, Control.MousePosition.X) - BackgroundImage.Width;
+                            goY = Aquarium.random.Next(Control.MousePosition.Y, ScrH) - BackgroundImage.Height;
+                        }
+                        //Приближается слева, слева - снизу, снизу
+                        if ((dx <= 0) & (dy >= 0))
+                        {
+                            goX = Aquarium.random.Next(Control.MousePosition.X, ScrW) - BackgroundImage.Width;
+                            goY = Aquarium.random.Next(0, Control.MousePosition.Y) - BackgroundImage.Height;
+                        }
+                        //Приближается слева - сверху IV
+                        if ((dx < 0) & (dy < 0))
+                        {
+                            goX = Aquarium.random.Next(Control.MousePosition.X, ScrW) - BackgroundImage.Width;
+                            goY = Aquarium.random.Next(Control.MousePosition.Y, ScrH) - BackgroundImage.Height;
+                        }
+                    }
+
+                    state = 0;
+                }
+                //И придумаем как её достичь
+
+                //? Зачем это выделено скобками, если переключения логикой нет?
+                {
+                    //Вектор Х
+                    dx = goX - (Location.X + BackgroundImage.Width / 2);
+                    //Вектор У
+                    dy = goY - (Location.Y + BackgroundImage.Height / 2);
                     g = Math.Sqrt(dx * dx + dy * dy);
 
-                    if ((g < fov) && (!isTriggered))
-                    {
-                        state = 15;
-                    }
+                    //Установка значений "план" достижения области точки
+                    SpeedX = CurSpeed * dx / g;
+                    SpeedY = CurSpeed * dy / g;
 
+                    isPathfinded = true;
                 }
 
-                //Переключатель "Успокоиться и вспомнить точку"
-                if (isTriggered)
+                //Перевернём если собираемся в другом направлении
+                if (((SpeedX < 0) && (!isFlipped)) || ((SpeedX > 0) && (isFlipped)))
                 {
+                    //state = 5;
+                    if (rotationTicks >= RotationDelay)
                     {
-                        if (memoryTicks < memoryLasts)
-                        {
-                            memoryTicks += (uint)dt;
-                        }
-                        else
-                        {
-                            memoryTicks = 0;
-                            isTriggered = false;
-                            goX = goTX;
-                            goY = goTY;
-
-                            CurSpeed = MaxSpeedConst;
-
-                            state = 0;
-                        }
+                        Bitmap rotatedBI = new Bitmap(BackgroundImage);
+                        rotatedBI.RotateFlip(RotateFlipType.RotateNoneFlipX);
+                        BackgroundImage = rotatedBI;
+                        isFlipped = !isFlipped;
+                        rotationTicks = 0;
+                    }
+                    else
+                    {
+                        rotationTicks += (uint)dt;
+                        //Надо как-то отключить перемещение у рыбы, чтобы это не вызвало проблем
+                        //Состояние 5?
+                        //Решено сильно замедлять рыбу
+                        SpeedX /= 10;
+                        SpeedY /= 10;
 
                     }
                 }
+                //}
+                rx += SpeedX * dt / 1000;
+                ry += SpeedY * dt / 1000;
+
+                Location = new Point((int)rx, (int)ry);
             }
-
-            //Ищем новую точку если требуют состояния, с их целями
-            if ((state >= 10) && (state < 20))
-            {
-                //Генерация новой точки
-                if (state == 10)
-                {
-                    goX = Aquarium.random.Next(ScrW) - Width;
-                    goY = Aquarium.random.Next(ScrH) - Height;
-                }
-
-                //Поиск точки побега при испуге
-                if (state == 15)
-                {
-                    goTX = goX;
-                    goTY = goY;
-
-                    isTriggered = true;
-
-                    CurSpeed = TriggeredSpeed;
-
-                    //TODO case
-                    //Курсор в поле зрения!
-                    //Приближается справа, справа-сверху, сверху
-                    if ((dx >= 0) & (dy >= 0))
-                    {
-                        //Сгенерируем новую точку и придумаем как её достичь
-                        goX = Aquarium.random.Next(0, Control.MousePosition.X) - BackgroundImage.Width;
-                        goY = Aquarium.random.Next(Control.MousePosition.Y, ScrH) - BackgroundImage.Height;
-                    }
-                    //Приближается справа - снизу 
-                    if ((dx > 0) & (dy < 0))
-                    {
-                        goX = Aquarium.random.Next(0, Control.MousePosition.X) - BackgroundImage.Width;
-                        goY = Aquarium.random.Next(Control.MousePosition.Y, ScrH) - BackgroundImage.Height;
-                    }
-                    //Приближается слева, слева - снизу, снизу
-                    if ((dx <= 0) & (dy >= 0))
-                    {
-                        goX = Aquarium.random.Next(Control.MousePosition.X, ScrW) - BackgroundImage.Width;
-                        goY = Aquarium.random.Next(0, Control.MousePosition.Y) - BackgroundImage.Height;
-                    }
-                    //Приближается слева - сверху IV
-                    if ((dx < 0) & (dy < 0))
-                    {
-                        goX = Aquarium.random.Next(Control.MousePosition.X, ScrW) - BackgroundImage.Width;
-                        goY = Aquarium.random.Next(Control.MousePosition.Y, ScrH) - BackgroundImage.Height;
-                    }
-                }
-
-                state = 0;
-            }
-            //И придумаем как её достичь
-
-            //? Зачем это выделено скобками, если переключения логикой нет?
-            {
-                //Вектор Х
-                dx = goX - (Location.X + BackgroundImage.Width / 2);
-                //Вектор У
-                dy = goY - (Location.Y + BackgroundImage.Height / 2);
-                g = Math.Sqrt(dx * dx + dy * dy);
-
-                //Установка значений "план" достижения области точки
-                SpeedX = CurSpeed * dx / g;
-                SpeedY = CurSpeed * dy / g;
-
-                isPathfinded = true;
-            }
-
-            //Перевернём если собираемся в другом направлении
-            if (((SpeedX < 0) && (!isFlipped)) || ((SpeedX > 0) && (isFlipped)))
-            {
-                //state = 5;
-                if (rotationTicks >= RotationDelay)
-                {
-                    BackgroundImage.RotateFlip(RotateFlipType.RotateNoneFlipX);
-                    isFlipped = !isFlipped;
-                    rotationTicks = 0;
-                }
-                else
-                {
-                    rotationTicks += (uint)dt;
-                    //Надо как-то отключить перемещение у рыбы, чтобы это не вызвало проблем
-                    //Состояние 5?
-                    //Решено сильно замедлять рыбу
-                    SpeedX /= 10;
-                    SpeedY /= 10;
-
-                }
-            }
-            //}
-            rx += SpeedX * dt / 1000;
-            ry += SpeedY * dt / 1000;
-
-            Location = new Point((int)rx, (int)ry);
-
-        }
-        private void Fish_FormClosing(object sender, FormClosingEventArgs e)
-        {
 
         }
     }
