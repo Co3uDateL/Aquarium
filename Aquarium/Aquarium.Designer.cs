@@ -221,6 +221,7 @@
             this.ShowInTaskbar = false;
             this.Text = "FISH\'O\'LUTION";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            this.Load += new System.EventHandler(this.Aquarium_Load);
             this.cMenu.ResumeLayout(false);
             this.ResumeLayout(false);
 

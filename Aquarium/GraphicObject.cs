@@ -589,7 +589,24 @@ namespace Aquarium
         public int size;
         public Color color;
         public int smell;
-        public int disguised;
+        public int masking;
+
+        //TODO type enumerator
+
+        /// <summary>
+        /// Создаст еду указанного типа с случайной картинкой
+        /// </summary>
+        /// <param name="type"></param>
+        Food(string path, int pCalories, int pSize, Color pColor, int pSmell, int pMasking) : base(path)
+        {
+            calories = pCalories;
+            size = pSize;
+            color = pColor;
+            smell = pSmell;
+            masking = pMasking;
+
+
+        }
     }
     public partial class Fish : GameObject
     {

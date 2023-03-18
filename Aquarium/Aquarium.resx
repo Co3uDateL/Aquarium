@@ -657,7 +657,7 @@
   <data name="ракушкаToolStripMenuItem.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        vQAADr0BR/uQrQAADXhJREFUaEPdWflTk1kW7b9plp5WUSAJhC2swYiAkIQEwhISdkLCvoZAWAIhIQQS
+        vAAADrwBlbxySQAADXhJREFUaEPdWflTk1kW7b9plp5WUSAJhC2swYiAkIQEwhISdkLCvoZAWAIhIQQS
         CCAKgmi7tLbaiqg0iruOK7K6W9X909RMnbnvg9hgO1222j0986pOfV+AfHn3vHvPPTd88d9epRnZyImJ
         R9VuJSolcuijElEUnQCdOAnlMckcysTJMBDK4uQo3iVFrjgB62//318Ve6TQ7ghEub8IVb4iVPuFQ+8b
         ioItAajwDeNQRjD4haFoRxAMwkiot/L+fwiojJOgNkiEzhAxOvzDYfEToZWCtITvhEUUi3ZCa3gsWiJi
@@ -721,7 +721,7 @@
   <data name="водоросльToolStripMenuItem.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAAJ4AAAEYCAYAAACtG08KAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        vQAADr0BR/uQrQAAbL1JREFUeF7tvQd0HNe1plvIGSDAIEZRiZlEzjl3o9EJjZxzJpjFJGaCBImcM0CA
+        vAAADrwBlbxySQAAbL1JREFUeF7tvQd0HNe1plvIGSDAIEZRiZlEzjl3o9EJjZxzJpjFJGaCBImcM0CA
         IAiQyDmDYM7KwZZlybIsyXGefe+dmTdr5s3/dhVEWfa1iPZ1iwKo3mvtVV1NsPt0na92OHXOPoxSlMJK
         /2/vIf9hE/aNZ2Pn1HHsv3cWO64fwiE6Hr+TixMzhah41IrJ3z7GN/9FKUr516Xp8xHYtghgM86D6aAX
         rHoFcO4RIKxHivibMfC8GwGnvnCM//GOEjylKE7a/zADlzYJ7Mb5sOz3gn2vENJbsYgbj0DMTCScbgbD
@@ -1191,7 +1191,7 @@
   <data name="каменьToolStripMenuItem.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        vQAADr0BR/uQrQAAEahJREFUaEPtWgdUlVfWtfeWsSQzGf1nJpmMiV2sIF2kKHbFFrHGgqj0qiJdmnRp
+        vAAADrwBlbxySQAAEahJREFUaEPtWgdUlVfWtfeWsSQzGf1nJpmMiV2sIF2kKHbFFrHGgqj0qiJdmnRp
         AjZU7D3WaOxYEQUL2GPvGjEmcf9nH9F/1nJmfmNmVrLW5K511/cefu97d99z9j773Ge538Z/yxgy2AF/
         adIY9evWQe3q1VC3Zg3Uq1VTrw3qv4fy5cohLjYGZbf/ekdYUCCcx43DuOGOcBzoAIeevTCoV28M6tsX
         9tbW+POHH8LHw/3XC2T0qBGoKLud9/VO4MfvgWelePHkMW5dvIBrxedw7+oVLMmcC5MO7dD8k0/03jWr
