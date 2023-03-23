@@ -193,15 +193,32 @@ namespace Aquarium
             InitGameObject("rock", random.Next(0, GraphicObject.ScrW), random.Next(0, GraphicObject.ScrH));
         }
 
+        
+
         private void Aquarium_Load(object sender, EventArgs e)
         {
             trayIcon.ShowBalloonTip(
-                10000,
+                5000,
                 "Буль-Буль!\n",
                 "Аквариум запущен!\n" +
                 "Нажмите правой кнопкой по иконке для взаимодействий!",
                 ToolTipIcon.Info
             );
+        }
+
+        private void PlaceGranule(object sender, EventArgs e)
+        {
+
+        }
+
+        private void PlacePill(object sender, EventArgs e)
+        {
+
+        }
+
+        private void PlaceFlake(object sender, EventArgs e)
+        {
+
         }
     }
 
