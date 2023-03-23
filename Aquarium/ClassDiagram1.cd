@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Comment CommentText="Класс формы - меню">
+    <Position X="0.647" Y="3.486" Height="0.319" Width="1.7" />
+  </Comment>
+  <Comment CommentText="Класс не реализован">
+    <Position X="5.449" Y="4.586" Height="0.319" Width="1.604" />
+  </Comment>
+  <Class Name="Aquarium.Aquarium" Collapsed="true">
+    <Position X="0.75" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAeAAAEECCAJAAASIACAAMISCEAChhAwABQUAgCAIgA=</HashCode>
+      <FileName>Aquarium.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Aquarium.Fish">
+    <Position X="9" Y="3.75" Width="2" />
+    <InheritanceLine Type="Aquarium.GameObject" FixedFromPoint="true">
+      <Path>
+        <Point X="8.75" Y="3.562" />
+        <Point X="10" Y="3.562" />
+        <Point X="10" Y="3.75" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>ITQAAAYAAAAAQAAAAAI4AAABAAAAgCAcAEQAAAgABAA=</HashCode>
+      <FileName>GraphicObject.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Aquarium.Food">
+    <Position X="5.5" Y="5" Width="1.5" />
+    <InheritanceLine Type="Aquarium.GameObject" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="7.25" Y="3.687" />
+        <Point X="6.312" Y="3.687" />
+        <Point X="6.312" Y="5" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAAAAAAAQACAAAAACCAAAAA=</HashCode>
+      <FileName>GraphicObject.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Aquarium.GameObject">
+    <Position X="7.25" Y="3.25" Width="1.5" />
+    <InheritanceLine Type="Aquarium.GraphicObject" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="5" Y="3" />
+        <Point X="8.062" Y="3" />
+        <Point X="8.062" Y="3.25" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>EAUAAEAIABgAAAAgAAAAAAgBAAACAAQAAAAEAAABAAA=</HashCode>
+      <FileName>GraphicObject.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Aquarium.GraphicObject">
+    <Position X="2.5" Y="2.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>GgAAAEIAADgAAAAEAACIgQACIIICCAAAAAAAADAACAA=</HashCode>
+      <FileName>GraphicObject.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="System.Windows.Forms.Form" Collapsed="true">
+    <Position X="2.75" Y="1.5" Width="2" />
+    <Compartments>
+      <Compartment Name="Properties" Collapsed="true" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="System.Windows.Forms.Form.ControlCollection" Collapsed="true">
+        <TypeIdentifier />
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier />
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
