@@ -192,7 +192,7 @@
             this.гранулыToolStripMenuItem.Name = "гранулыToolStripMenuItem";
             this.гранулыToolStripMenuItem.Size = new System.Drawing.Size(218, 26);
             this.гранулыToolStripMenuItem.Text = "Гранулы";
-            this.гранулыToolStripMenuItem.DoubleClick += new System.EventHandler(this.PlaceGranule);
+            this.гранулыToolStripMenuItem.Click += new System.EventHandler(this.PlaceGranule);
             // 
             // таблеткиToolStripMenuItem
             // 

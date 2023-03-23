@@ -656,7 +656,7 @@ namespace Aquarium
 
         }
     }
-    public partial class Fish : GameObject
+    public class Fish : GameObject
     {
         //--- --- ---
         /// <summary>
@@ -797,6 +797,27 @@ namespace Aquarium
         }
         public Fish(string path, int pMaxSpeedConst, bool pcursorFear, uint pMemoryLasts, int pFov, double pTriggeredMultiplier, uint pRotationDelay)
             : base(path)
+        {
+            //InitializeComponent();
+            //InitializeBitmap("fish/"+name);
+            TransparencyKey = BackColor;
+
+            cursorFear = pcursorFear;
+            MaxSpeedConst = pMaxSpeedConst;
+            memoryLasts = pMemoryLasts;
+            fov = pFov;
+
+            CurSpeed = MaxSpeedConst;
+            RotationDelay = pRotationDelay;
+            TriggeredSpeedMultiplier = pTriggeredMultiplier;
+            TriggeredSpeed = CurSpeed * TriggeredSpeedMultiplier;
+
+            rx = Aquarium.random.Next(0, ScrW);
+            ry = Aquarium.random.Next(topY, floorY);
+            gMoveTo(rx, ry);
+        }
+        public Fish(string path, int x, int y, double scale, double acceleration, bool pColidingEnabled, int pMaxSpeedConst, bool pcursorFear, uint pMemoryLasts, int pFov, double pTriggeredMultiplier, uint pRotationDelay)
+            : base(path, scale, acceleration, x, y, pColidingEnabled)
         {
             //InitializeComponent();
             //InitializeBitmap("fish/"+name);
