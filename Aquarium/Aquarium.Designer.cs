@@ -185,6 +185,7 @@
             this.создатьЕдуToolStripMenuItem.Name = "создатьЕдуToolStripMenuItem";
             this.создатьЕдуToolStripMenuItem.Size = new System.Drawing.Size(279, 24);
             this.создатьЕдуToolStripMenuItem.Text = "Создать еду";
+            this.создатьЕдуToolStripMenuItem.Click += new System.EventHandler(this.PlaceFood);
             // 
             // гранулыToolStripMenuItem
             // 

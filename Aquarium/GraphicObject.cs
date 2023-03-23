@@ -630,29 +630,25 @@ namespace Aquarium
     }
     public class Food : GameObject
     {
-        public int calories;
-        public int size;
-        public Color color;
-        public int smell;
-        public int masking;
+        public int calories = 10;
+        public int smell = 10;
+
+        //Включается если поедается другой рыбой
+        public bool busy = false;
 
         //TODO type enumerator
 
         /// <summary>
-        /// Создаст еду указанного типа с случайной картинкой
+        /// Создаст еду
         /// </summary>
         /// <param name="type"></param>
-        Food(string path, int pCalories, int pSize, Color pColor, int pSmell, int pMasking) : base(path)
+        public Food(string path, int x, int y, int pCalories, double scale, double Fa, int pSmell, bool pColidingEnabled) : base(path, scale, Fa, x, y, pColidingEnabled)
         {
             calories = pCalories;
-            size = pSize;
-            color = pColor;
             smell = pSmell;
-            masking = pMasking;
-
-
         }
     }
+
     public class Fish : GameObject
     {
         //--- --- ---

@@ -101,6 +101,63 @@ namespace Aquarium
                     }
             }
         }
+        public void InitFood(string path, int x, int y, int calories, double scale, double Fa, int smell,  bool colidingEnabled)
+        {
+            //string path, int x, int y, int pCalories, double scale, int weight, int pSmell, bool pColidingEnabled 
+            GameObjects.Add( new Food(path, x, y, calories, scale, Fa, smell, colidingEnabled) );
+        }
+        public void InitFood(string name, int x, int y)
+        {
+            //По какой-то причине конкатенация строк вызывает исключение неправильного аргумента
+            switch (name)
+            {
+                case "pill":
+                    {
+                        InitFood
+                            (
+                                "../../data/textures/food/" + name + "/"+(random.Next(0,2).ToString())+".png",
+                                x,
+                                y,
+                                500,
+                                5,
+                                2/10,
+                                10,
+                                true
+                            );
+                        break;
+                    }
+                case "granule":
+                    {
+                        InitFood
+                            (
+                                "../../data/textures/food/" + name + "/" + (random.Next(0, 2).ToString()) + ".png",
+                                x,
+                                y,
+                                250,
+                                4,
+                                1/10,
+                                200,
+                                true
+                            );
+                        break;
+                    }
+                case "flake":
+                    {
+                        InitFood
+                            (
+                                "../../data/textures/food/" + name + "/" + (random.Next(0, 2).ToString()) + ".png",
+                                x,
+                                y,
+                                random.Next(50, 300),
+                                3,
+                                random.Next(-1,1)/10,
+                                400,
+                                true
+                            );
+                        break;
+                    }
+            }
+        }
 
         private void cMenuNewFish(object sender, EventArgs e)
         {
@@ -176,11 +233,6 @@ namespace Aquarium
             PlaceCastle(sender, e);
         }
 
-        private void NewFood(object sender, EventArgs e)
-        {
-            //Food temp_gaO = new Food();
-        }
-
         private void PlaceShell(object sender, EventArgs e)
         {
             InitGameObject("shell", random.Next(10, GraphicObject.ScrW-10), random.Next(0, GraphicObject.ScrH));
@@ -215,17 +267,24 @@ namespace Aquarium
 
         private void PlaceGranule(object sender, EventArgs e)
         {
-
+            InitFood("granule", random.Next(10, GraphicObject.ScrW - 10), random.Next(0, GraphicObject.ScrH));
         }
 
         private void PlacePill(object sender, EventArgs e)
         {
-
+            InitFood("pill", random.Next(10, GraphicObject.ScrW - 10), random.Next(0, GraphicObject.ScrH));
         }
 
         private void PlaceFlake(object sender, EventArgs e)
         {
+            InitFood("flake", random.Next(10, GraphicObject.ScrW - 10), random.Next(0, GraphicObject.ScrH));
+        }
 
+        private void PlaceFood(object sender, EventArgs e)
+        {
+            PlaceGranule(sender, e);
+            PlacePill(sender, e);
+            PlaceFlake(sender, e);
         }
     }
 
