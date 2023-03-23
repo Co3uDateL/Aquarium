@@ -524,46 +524,6 @@ namespace Aquarium
             Location = new Point((int) rx, (int) ry);
         }
 
-        /// <summary>
-        /// Подвергнуться действию гравитации
-        /// </summary>
-        public virtual void Fall()
-        {
-            //if (Acceleration != LastAcceleration)
-            //{
-            //    Acceleration = LastAcceleration;
-            //}
-
-            //TODO Переделать, что это вообще за ужас
-            Acceleration = LastAcceleration;
-            SpeedY += Acceleration;
-
-            //TODO Coliding
-
-            //Низ картинки будет ниже пола?
-            if (Location.Y + BackgroundImage.Height + SpeedY + Acceleration > floorY)
-            {
-                gMoveTo(Location.X, floorY - BackgroundImage.Height);
-                LastAcceleration = Acceleration;
-                Acceleration = 0;
-                SpeedY = 0;
-            }
-            else
-            {
-                //Выше потолка
-                if (Location.Y + SpeedY <= topY)
-                {
-                    gMoveTo(Location.X, topY+1);
-                    Acceleration = 0;
-                    SpeedY = 0;
-                }
-                //Норм
-                else
-                {
-                    gMoveOn(0, SpeedY);
-                }
-            }
-        }
 
         public override void DragAndDropStart()
         {
@@ -584,10 +544,47 @@ namespace Aquarium
         }
         public virtual void Update(int dt)
         {
+            /// <summary>
+            /// Подвергнуться действию гравитации
+            /// </summary>
+
             //В конце подвергнуться действию гравитцаии
             if (!IsDragged)
             {
-                Fall();
+                //if (Acceleration != LastAcceleration)
+                //{
+                //    Acceleration = LastAcceleration;
+                //}
+
+                //TODO Переделать
+                Acceleration = LastAcceleration;
+                SpeedY += Acceleration;
+
+                //TODO Coliding
+
+                //Низ картинки будет ниже пола?
+                if (Location.Y + BackgroundImage.Height + SpeedY + Acceleration > floorY)
+                {
+                    gMoveTo(Location.X, floorY - BackgroundImage.Height);
+                    LastAcceleration = Acceleration;
+                    Acceleration = 0;
+                    SpeedY = 0;
+                }
+                else
+                {
+                    //Верх - выше потолка?
+                    if (Location.Y + SpeedY <= topY)
+                    {
+                        gMoveTo(Location.X, topY + 1);
+                        Acceleration = 0;
+                        SpeedY = 0;
+                    }
+                    //Норм
+                    else
+                    {
+                        gMoveOn(0, SpeedY);
+                    }
+                }
             }
         }
 
