@@ -81,22 +81,22 @@ namespace Aquarium
             {
                 case "castle":
                     {
-                        InitGameObject("../../data/textures/object/" + name + ".png", ((double)random.Next(80, 120) / 100), 10, x, y, true) ;
+                        InitGameObject("../../data/textures/object/" + name + ".png", random.Next(80, 200) / 100, 10, x, y, true) ;
                         break;
                     }
                 case "shell":
                     {
-                        InitGameObject("../../data/textures/object/" + name + ".png", ((double)random.Next(40, 200) / 100), 0.05, x, y, true);
+                        InitGameObject("../../data/textures/object/" + name + ".png", random.Next(50, 150) / 100, 0.05, x, y, true);
                         break;
                     }
                 case "rock":
                     {
-                        InitGameObject("../../data/textures/object/" + name + ".png", ((double)random.Next(20, 400) / 100), 2, x, y, true);
+                        InitGameObject("../../data/textures/object/" + name + ".png", random.Next(50, 200) / 100, 2, x, y, true);
                         break;
                     }
                 case "weed":
                     {
-                        InitGameObject("../../data/textures/object/" + name + ".png", ((double)random.Next(100, 300) / 100), 0.6, x, y, true);
+                        InitGameObject("../../data/textures/object/" + name + ".png", random.Next(150, 300) / 100, 0.6, x, y, true);
                         break;
                     }
             }
@@ -170,7 +170,10 @@ namespace Aquarium
 
         private void NewGameO(object sender, EventArgs e)
         {
-
+            PlaceShell(sender, e);
+            PlaceWeed(sender, e);
+            PlaceRock(sender, e);
+            PlaceCastle(sender, e);
         }
 
         private void NewFood(object sender, EventArgs e)
@@ -180,20 +183,24 @@ namespace Aquarium
 
         private void PlaceShell(object sender, EventArgs e)
         {
-            InitGameObject("shell", random.Next(0, GraphicObject.ScrW), random.Next(0, GraphicObject.ScrH));
+            InitGameObject("shell", random.Next(10, GraphicObject.ScrW-10), random.Next(0, GraphicObject.ScrH));
         }
 
         private void PlaceWeed(object sender, EventArgs e)
         {
-            InitGameObject("weed", random.Next(0, GraphicObject.ScrW), random.Next(0, GraphicObject.ScrH));
+            InitGameObject("weed", random.Next(10, GraphicObject.ScrW - 10), random.Next(0, GraphicObject.ScrH));
         }
 
         private void PlaceRock(object sender, EventArgs e)
         {
-            InitGameObject("rock", random.Next(0, GraphicObject.ScrW), random.Next(0, GraphicObject.ScrH));
+            InitGameObject("rock", random.Next(10, GraphicObject.ScrW - 10), random.Next(0, GraphicObject.ScrH));
+        }
+        private void PlaceCastleGO(object sender, EventArgs e)
+        {
+            InitGameObject("castle", random.Next(10, GraphicObject.ScrW) - 10, random.Next(0, GraphicObject.ScrH));
         }
 
-        
+
 
         private void Aquarium_Load(object sender, EventArgs e)
         {

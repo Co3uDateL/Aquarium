@@ -31,9 +31,31 @@ namespace Aquarium
         public static readonly int floorY = Screen.PrimaryScreen.WorkingArea.Bottom;
         public static readonly int topY = Screen.PrimaryScreen.WorkingArea.Top + 200;
 
-        public bool IsDragged = false;
-        public int DragAndDropOffestX = 0;
-        public int DragAndDropOffestY = 0;
+        protected bool IsDragged = false;
+
+        //Свойство "Перетаскивается". Когда активируется должно запомнить офсеты
+        public bool _IsDragged_
+        {
+            get
+            {
+                return IsDragged;
+            }
+
+            set
+            {
+                if (value)
+                {
+                    //Начинаем перетаскивание
+                    IsDragged = value;
+                    DragAndDropOffestX = MousePosition.X - Location.X;
+                    DragAndDropOffestY = MousePosition.Y - Location.Y;
+                }
+                else IsDragged = value;
+            }
+        }
+
+        protected int DragAndDropOffestX = 0;
+        protected int DragAndDropOffestY = 0;
         public static bool InScrBounds(Point p)
         {
             //&& = если первый результат false, не сравнивать дальше
@@ -106,6 +128,41 @@ namespace Aquarium
         //    id = random.Next(files.Length);
         //    return new Bitmap(files[id]);
         //}
+        public static Bitmap ResizeBitmap(Bitmap original, int width, int height)
+        {
+            if ( (width + height) < 2) //Очень малая площадь около нуля
+            {
+                width = (int) (original.Width * 0.3);
+                height = (int) (original.Height * 0.3);
+            }
+            try
+            {
+                //a holder for the result
+                Bitmap result = new Bitmap(width, height);
+
+                //use a graphics object to draw the resized image into the bitmap
+                using (Graphics graphics = Graphics.FromImage(result))
+                {
+                    //set the resize quality modes to high quality
+                    graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.AssumeLinear;
+                    graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+                    graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
+                    //draw the image into the target bitmap
+                    graphics.DrawImage(original, 0, 0, result.Width, result.Height);
+                }
+
+                //return the resulting bitmap
+                return result;
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show(
+                    width + " " + height +"\n" + 
+                    "Ошибка масштабирования\n" +
+                    exc.Message);
+                return original;
+            }
+        }
 
         /* Методы класса 
            Многие методы чрезмерно раздробленны, (функции состоят из одной строчки - вызова другой)
@@ -166,8 +223,14 @@ namespace Aquarium
         /// </summary>
         public void ResizeBitmap(int width, int height)
         {
-            BackgroundImage = new Bitmap(BackgroundImage, Math.Abs(width), Math.Abs(height) );
+            //Этот грустный метод оставляет большую белую некрасивую обводку
+            //BackgroundImage = new Bitmap(BackgroundImage, Math.Abs(width), Math.Abs(height) );
+            //this.Size = BackgroundImage.Size;
+
+            //Метод ближайшего соседа
+            BackgroundImage = ResizeBitmap((Bitmap)BackgroundImage, width, height);
             this.Size = BackgroundImage.Size;
+
         }
 
         /// <summary>
@@ -180,22 +243,7 @@ namespace Aquarium
             w = (int)(BackgroundImage.Width * Math.Abs(scale));
             h = (int)(BackgroundImage.Height * Math.Abs(scale));
 
-            //Ограничение размера Bitmap = ushort.MaxValue
-            if ( (w < ushort.MaxValue) && (h < ushort.MaxValue) )
-            {
-                try
-                {
-                    BackgroundImage = new Bitmap(BackgroundImage, w, h);
-                    this.Size = BackgroundImage.Size;
-                }
-                catch
-                {
-                    MessageBox.Show("Ошибка при масштабировании изображения\n"
-                        + "Множитель: " + scale + "; Итоговый размер: " + w + " x " + h);
-                }
-            }
-
-
+            ResizeBitmap(w, h);
         }
         //Чтобы избежать переопределения наследуемого события Move, будет использовано название gMove (general Move)
         /// <summary>
@@ -394,14 +442,22 @@ namespace Aquarium
             DragAndDropEnd();
         }
 
+        //Вызывается по событию eDragAndDropStart! 
         public virtual void DragAndDropStart()
         {
+            //Не предусмотрено для GraphicObject
         }
+
+        //Вызывается по событию eDragAndDropMove! 
         public virtual void DragAndDropMove()
         {
+            //Не предусмотрено для GraphicObject
         }
+
+        //Вызывается по событию eDragAndDropEnd! 
         public virtual void DragAndDropEnd()
         {
+            //Не предусмотрено для GraphicObject
         }
     }
     /// <summary>
@@ -422,49 +478,41 @@ namespace Aquarium
         /// <summary>
         /// Реальные коордианты объекта
         /// </summary>
-        protected double rx, ry;
+        protected double rx;
+        protected double ry;
+
         /// <summary>
         /// Ускорение по оси Y. (отрицательные значения для всплытия)
         /// </summary>
-        public double Acceleration = 0;
-        public double LastAcceleration = 0;
-        public double SpeedY = 0;
+        protected double Acceleration = 0;
+        protected double LastAcceleration = 0;
+        protected double SpeedY = 0;
         //TODO Colidings
-        public bool IsCollidingWith(GameObject target)
-        {
-            //Rectangle Rec1 = new Rectangle(this.Location, this.Size);
-            //Rectangle Rec2 = new Rectangle(target.Location, target.Size);
+        //public bool IsCollidingWith(GameObject target)
+        //{
+        //    //Rectangle Rec1 = new Rectangle(this.Location, this.Size);
+        //    //Rectangle Rec2 = new Rectangle(target.Location, target.Size);
 
-            //if ( Rec1.IntersectsWith(Rec2) )
+        //    //if ( Rec1.IntersectsWith(Rec2) )
 
-            //Экономим на переменных
-            if ( new Rectangle(this.Location, this.Size).IntersectsWith(new Rectangle(target.Location, target.Size)))
-            {
-                return true;
-            }
-            //else
-            return false;
-        }
-        //TODO Coliding
-        public double GetCollidingForce(GameObject target)
-        {
-            Rectangle intersection = new Rectangle(this.Location, this.Size);
-            intersection.Intersect(new Rectangle(target.Location, target.Size));
-            //По теореме Пифагора диагональ d = sqrt( a^2 + b^2 )
-            return Math.Sqrt( Math.Pow( intersection.Width, 2) + Math.Pow( intersection.Height, 2 ) );
-        }
+        //    //Экономим на переменных
+        //    if ( new Rectangle(this.Location, this.Size).IntersectsWith(new Rectangle(target.Location, target.Size)))
+        //    {
+        //        return true;
+        //    }
+        //    //else
+        //    return false;
+        //}
+        ////TODO Coliding
+        //public double GetCollidingForce(GameObject target)
+        //{
+        //    Rectangle intersection = new Rectangle(this.Location, this.Size);
+        //    intersection.Intersect(new Rectangle(target.Location, target.Size));
+        //    //По теореме Пифагора диагональ d = sqrt( a^2 + b^2 )
+        //    return Math.Sqrt( Math.Pow( intersection.Width, 2) + Math.Pow( intersection.Height, 2 ) );
+        //}
         public virtual void gMoveTo(double tx, double ty)
         {
-            ////Высота картинки пробивает пол
-            //if ( (ty + Height) > floorY)
-            //{
-            //    ty = floorY - Height;
-            //}
-            ////Картинка пробивает потолок
-            //else if (ty < topY)
-            //{
-            //    ty = topY;
-            //}
             rx = tx;
             ry = ty;
             Location = new Point((int) tx, (int) ty);
