@@ -711,7 +711,7 @@ namespace Aquarium
         /// <summary>
         /// Насколько рыба сыта
         /// </summary>
-        //private double Saturation;
+        private double Saturation;
 
         /// <summary>
         /// Текущая скорость
@@ -810,6 +810,51 @@ namespace Aquarium
             gMoveTo(rx, ry);
         }
 
+        private void StateMachine(byte state, int dt)
+        {
+            //Обработки состояния.
+            //В зависимости от номера состояния
+            //Воспроизводит то или иное поведение рыбы.
+            switch (state)
+            {
+                case 0: 
+                    {
+                            
+                        break;
+                    }
+
+                case 1: 
+                    {
+                            
+                        break;
+                    }
+
+                case 10:
+                    {
+
+                        break;
+                    }
+
+                case 11:
+                    {
+
+                        break;
+                    }
+
+                case 15:
+                    {
+
+                        break;
+                    }
+
+                case 51:
+                    {
+
+                        break;
+                    }
+            }
+    }
+
         public override void Update(int dt)
         {
             //Активировать переключатель состояний если рыбу не перетягивают
@@ -824,8 +869,8 @@ namespace Aquarium
                 //Анализируем ситуацию вокруг, если условие - меняем состояние
                 //switch (state)
                 //{
-                if (state == 0)
                 //0:
+                if (state == 0)
                 {
                         //Переключатель "Создать новую точку"
                         if ((Location.X - 100 < goX) && (goX < (Location.X + BackgroundImage.Width + 100)) || !isPathfinded)
@@ -851,7 +896,7 @@ namespace Aquarium
                             }
 
                         }
-
+                        
                         //Переключатель "Успокоиться и вспомнить точку"
                         if (isTriggered)
                         {
@@ -962,7 +1007,7 @@ namespace Aquarium
                         rotationTicks += (uint)dt;
                         //Надо как-то отключить перемещение у рыбы, чтобы это не вызвало проблем
                         //Состояние 5?
-                        //Решено сильно замедлять рыбу
+                        //Решено сильно замедлять рыбу для симуляции инерции
                         SpeedX /= 10;
                         SpeedY /= 10;
 
