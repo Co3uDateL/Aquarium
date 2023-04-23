@@ -817,9 +817,64 @@ namespace Aquarium
             //Воспроизводит то или иное поведение рыбы.
             switch (state)
             {
+                //Проверить условия - Выбрать состояние
                 case 0: 
                     {
-                            
+                            //Если рыба боиться курсора 
+                            if (cursorFear)
+                            {
+                                //S 15: и видит курсор 
+                                dx = Control.MousePosition.X - (Location.X + BackgroundImage.Width / 2);
+                                dy = Control.MousePosition.Y - (Location.Y + BackgroundImage.Height / 2);
+                                g = Math.Sqrt(dx * dx + dy * dy);
+
+                                if ((g < fov) && (!isTriggered))
+                                {
+                                    state = 15;
+                                    //Рыба пытается спастись от угрозы и точно не будет реагировать на другие условия
+                                    //Значит можно их не проверять
+                                    break;
+                                }
+                                    //S 15 <Time Out> --> S 10: Если рыба напугана и время испуга истекло
+                                    //Переключатель "Успокоиться и вспомнить точку"
+                                    else 
+                                    //!isTriggered || g >= FOV (Следует из предыдущего выражения.) If нужен, так как может возникнуть при g >= FOV
+                                    if (isTriggered) //Всё ещё напугана
+                                    {
+                                        if (memoryTicks < memoryLasts)
+                                        {
+                                            memoryTicks += (uint)dt;
+                                        }
+                                        else
+                                        {
+                                            memoryTicks = 0;
+                                            isTriggered = false;
+                                            goX = goTX;
+                                            goY = goTY;
+
+                                            CurSpeed = MaxSpeedConst;
+
+                                            state = 10;
+                                        }
+                                    }
+                                    //else g >= FOV -> Рыба успешно оторвалась и больше не напугана
+                            }
+
+                            //S 10: Если точка рандеву не достигнута или путь ещё не построен
+
+                            //+ Разброс в 50 с каждой стороны для исключения ситуаций когда рыба не попадает в точку из-за неточности рассчёта
+                            //TODO Добавить переменную разброса int spread = 50;
+                            //По Х: Левый угол формы --- goX --- Правый угол формы
+                            if ((Location.X - 50 < goX) && (goX < (Location.X + BackgroundImage.Width + 50)) || !isPathfinded)
+                            {
+                                //По Y: верхний угол формы - - - goY - - - Нижний угол изображения
+                                if ((Location.Y - 50 < goY) && (goY < (Location.Y + BackgroundImage.Height + 50)) || !isPathfinded)
+                                {
+                                    state = 10;
+                                }
+
+                            }
+
                         break;
                     }
 
