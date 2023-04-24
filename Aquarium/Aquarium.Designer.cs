@@ -43,6 +43,7 @@
             this.ракушкаToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.водоросльToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.каменьToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.замокToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.создатьЕдуToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.гранулыToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.таблеткиToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -51,7 +52,6 @@
             this.cMenuEx = new System.Windows.Forms.ToolStripMenuItem();
             this.trayIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.timer = new System.Windows.Forms.Timer(this.components);
-            this.замокToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.cMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -67,7 +67,7 @@
             this.cMenuEx});
             this.cMenu.Name = "cMenu";
             this.cMenu.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.cMenu.Size = new System.Drawing.Size(280, 156);
+            this.cMenu.Size = new System.Drawing.Size(280, 130);
             // 
             // cMenuAddFish
             // 
@@ -88,7 +88,7 @@
             // 
             this.toolStripMenuItem2.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItem2.Image")));
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(279, 26);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(278, 26);
             this.toolStripMenuItem2.Text = "Рыба клоун";
             this.toolStripMenuItem2.Click += new System.EventHandler(this.f1);
             // 
@@ -96,7 +96,7 @@
             // 
             this.toolStripMenuItem3.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItem3.Image")));
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(279, 26);
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(278, 26);
             this.toolStripMenuItem3.Text = "Удильщик";
             this.toolStripMenuItem3.Click += new System.EventHandler(this.f2);
             // 
@@ -104,7 +104,7 @@
             // 
             this.toolStripMenuItem4.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItem4.Image")));
             this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(279, 26);
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(278, 26);
             this.toolStripMenuItem4.Text = "Мини-Акула";
             this.toolStripMenuItem4.Click += new System.EventHandler(this.f3);
             // 
@@ -112,7 +112,7 @@
             // 
             this.toolStripMenuItem5.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItem5.Image")));
             this.toolStripMenuItem5.Name = "toolStripMenuItem5";
-            this.toolStripMenuItem5.Size = new System.Drawing.Size(279, 26);
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(278, 26);
             this.toolStripMenuItem5.Text = "Большая пугливая рыбка";
             this.toolStripMenuItem5.Click += new System.EventHandler(this.f4);
             // 
@@ -120,7 +120,7 @@
             // 
             this.toolStripMenuItem6.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItem6.Image")));
             this.toolStripMenuItem6.Name = "toolStripMenuItem6";
-            this.toolStripMenuItem6.Size = new System.Drawing.Size(279, 26);
+            this.toolStripMenuItem6.Size = new System.Drawing.Size(278, 26);
             this.toolStripMenuItem6.Text = "Маленькая зоркая рыбка";
             this.toolStripMenuItem6.Click += new System.EventHandler(this.f5);
             // 
@@ -136,7 +136,7 @@
             // 
             this.замокToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("замокToolStripMenuItem.Image")));
             this.замокToolStripMenuItem.Name = "замокToolStripMenuItem";
-            this.замокToolStripMenuItem.Size = new System.Drawing.Size(218, 26);
+            this.замокToolStripMenuItem.Size = new System.Drawing.Size(134, 26);
             this.замокToolStripMenuItem.Text = "Замок";
             this.замокToolStripMenuItem.Click += new System.EventHandler(this.PlaceCastle);
             // 
@@ -156,7 +156,7 @@
             // 
             this.ракушкаToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("ракушкаToolStripMenuItem.Image")));
             this.ракушкаToolStripMenuItem.Name = "ракушкаToolStripMenuItem";
-            this.ракушкаToolStripMenuItem.Size = new System.Drawing.Size(218, 26);
+            this.ракушкаToolStripMenuItem.Size = new System.Drawing.Size(167, 26);
             this.ракушкаToolStripMenuItem.Text = "Ракушка";
             this.ракушкаToolStripMenuItem.Click += new System.EventHandler(this.PlaceShell);
             // 
@@ -164,7 +164,7 @@
             // 
             this.водоросльToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("водоросльToolStripMenuItem.Image")));
             this.водоросльToolStripMenuItem.Name = "водоросльToolStripMenuItem";
-            this.водоросльToolStripMenuItem.Size = new System.Drawing.Size(218, 26);
+            this.водоросльToolStripMenuItem.Size = new System.Drawing.Size(167, 26);
             this.водоросльToolStripMenuItem.Text = "Водоросль";
             this.водоросльToolStripMenuItem.Click += new System.EventHandler(this.PlaceWeed);
             // 
@@ -172,9 +172,17 @@
             // 
             this.каменьToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("каменьToolStripMenuItem.Image")));
             this.каменьToolStripMenuItem.Name = "каменьToolStripMenuItem";
-            this.каменьToolStripMenuItem.Size = new System.Drawing.Size(218, 26);
+            this.каменьToolStripMenuItem.Size = new System.Drawing.Size(167, 26);
             this.каменьToolStripMenuItem.Text = "Камень";
             this.каменьToolStripMenuItem.Click += new System.EventHandler(this.PlaceRock);
+            // 
+            // замокToolStripMenuItem1
+            // 
+            this.замокToolStripMenuItem1.Image = ((System.Drawing.Image)(resources.GetObject("замокToolStripMenuItem1.Image")));
+            this.замокToolStripMenuItem1.Name = "замокToolStripMenuItem1";
+            this.замокToolStripMenuItem1.Size = new System.Drawing.Size(167, 26);
+            this.замокToolStripMenuItem1.Text = "Замок";
+            this.замокToolStripMenuItem1.Click += new System.EventHandler(this.PlaceCastleGO);
             // 
             // создатьЕдуToolStripMenuItem
             // 
@@ -191,7 +199,7 @@
             // 
             this.гранулыToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("гранулыToolStripMenuItem.Image")));
             this.гранулыToolStripMenuItem.Name = "гранулыToolStripMenuItem";
-            this.гранулыToolStripMenuItem.Size = new System.Drawing.Size(218, 26);
+            this.гранулыToolStripMenuItem.Size = new System.Drawing.Size(154, 26);
             this.гранулыToolStripMenuItem.Text = "Гранулы";
             this.гранулыToolStripMenuItem.Click += new System.EventHandler(this.PlaceGranule);
             // 
@@ -199,7 +207,7 @@
             // 
             this.таблеткиToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("таблеткиToolStripMenuItem.Image")));
             this.таблеткиToolStripMenuItem.Name = "таблеткиToolStripMenuItem";
-            this.таблеткиToolStripMenuItem.Size = new System.Drawing.Size(218, 26);
+            this.таблеткиToolStripMenuItem.Size = new System.Drawing.Size(154, 26);
             this.таблеткиToolStripMenuItem.Text = "Таблетки";
             this.таблеткиToolStripMenuItem.Click += new System.EventHandler(this.PlacePill);
             // 
@@ -207,7 +215,7 @@
             // 
             this.toolStripMenuItem7.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItem7.Image")));
             this.toolStripMenuItem7.Name = "toolStripMenuItem7";
-            this.toolStripMenuItem7.Size = new System.Drawing.Size(218, 26);
+            this.toolStripMenuItem7.Size = new System.Drawing.Size(154, 26);
             this.toolStripMenuItem7.Text = "Хлопья";
             this.toolStripMenuItem7.Click += new System.EventHandler(this.PlaceFlake);
             // 
@@ -234,14 +242,6 @@
             // 
             this.timer.Interval = 17;
             this.timer.Tick += new System.EventHandler(this.UpdateAll);
-            // 
-            // замокToolStripMenuItem1
-            // 
-            this.замокToolStripMenuItem1.Image = ((System.Drawing.Image)(resources.GetObject("замокToolStripMenuItem1.Image")));
-            this.замокToolStripMenuItem1.Name = "замокToolStripMenuItem1";
-            this.замокToolStripMenuItem1.Size = new System.Drawing.Size(218, 26);
-            this.замокToolStripMenuItem1.Text = "Замок";
-            this.замокToolStripMenuItem1.Click += new System.EventHandler(this.PlaceCastleGO);
             // 
             // Aquarium
             // 

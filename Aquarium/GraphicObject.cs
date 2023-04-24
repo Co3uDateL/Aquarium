@@ -809,6 +809,12 @@ namespace Aquarium
             ry = Aquarium.random.Next(topY, floorY);
             gMoveTo(rx, ry);
         }
+        public override void gMoveOn(double dRx, double dRy)
+        {
+            rx += dRx;
+            ry += dRy;
+            Location = new Point((int)rx, (int)ry);
+        }
 
         private void StateMachine(byte state, int dt)
         {
@@ -831,32 +837,33 @@ namespace Aquarium
                                 if ((g < fov) && (!isTriggered))
                                 {
                                     state = 15;
+                                    break;
                                     //Рыба пытается спастись от угрозы и точно не будет реагировать на другие условия
                                     //Значит можно их не проверять
-                                    break;
                                 }
                                     //S 15 <Time Out> --> S 10: Если рыба напугана и время испуга истекло
                                     //Переключатель "Успокоиться и вспомнить точку"
                                     else 
                                     //!isTriggered || g >= FOV (Следует из предыдущего выражения.) If нужен, так как может возникнуть при g >= FOV
-                                    if (isTriggered) //Всё ещё напугана
-                                    {
-                                        if (memoryTicks < memoryLasts)
+                                        if (isTriggered) //Всё ещё напугана
                                         {
-                                            memoryTicks += (uint)dt;
-                                        }
-                                        else
-                                        {
-                                            memoryTicks = 0;
-                                            isTriggered = false;
-                                            goX = goTX;
-                                            goY = goTY;
+                                            if (memoryTicks < memoryLasts)
+                                            {
+                                                memoryTicks += (uint)dt;
+                                            }
+                                            else
+                                            {
+                                                memoryTicks = 0;
+                                                isTriggered = false;
+                                                goX = goTX;
+                                                goY = goTY;
 
-                                            CurSpeed = MaxSpeedConst;
+                                                CurSpeed = MaxSpeedConst;
 
-                                            state = 10;
+                                                state = 10;
+                                                //break; //TODO Нужен ли тут брейк?
+                                            }
                                         }
-                                    }
                                     //else g >= FOV -> Рыба успешно оторвалась и больше не напугана
                             }
 
@@ -871,21 +878,68 @@ namespace Aquarium
                                 if ((Location.Y - 50 < goY) && (goY < (Location.Y + BackgroundImage.Height + 50)) || !isPathfinded)
                                 {
                                     state = 10;
+                                    //break; //TODO Нужен ли тут брейк?
                                 }
 
                             }
 
-                        break;
+                            if (((SpeedX < 0) && (!isFlipped)) || ((SpeedX > 0) && (isFlipped)))
+                            {
+                                state = 20; //Состояние "Повернуть"
+                                //break;
+                            }
+
+                            break; //Конец состояния. В лучшем случае сюда просто не дойдёт
                     }
 
                 case 1: 
                     {
-                            
+                        //Перевернём если собираемся в другом направлении
+                        if (((SpeedX < 0) && (!isFlipped)) || ((SpeedX > 0) && (isFlipped)))
+                        {
+                            //state = 5; Стоит ли это выносить в отдельное состояние?
+                            if (rotationTicks >= RotationDelay)
+                            {
+                                Bitmap rotatedBI = new Bitmap(BackgroundImage);
+                                rotatedBI.RotateFlip(RotateFlipType.RotateNoneFlipX);
+                                BackgroundImage = rotatedBI;
+                                isFlipped = !isFlipped;
+                                rotationTicks = 0;
+                            }
+                            else
+                            {
+                                rotationTicks += (uint)dt;
+                                //Надо как-то отключить перемещение у рыбы, чтобы это не вызвало проблем
+                                //Состояние 5?
+                                //Решено сильно замедлять рыбу для симуляции инерции
+                                SpeedX /= 10;
+                                SpeedY /= 10;
+                            }
+                        }
                         break;
                     }
 
                 case 10:
                     {
+                        //Генерация новой точки
+                        goX = Aquarium.random.Next(ScrW) - Width;
+                        goY = Aquarium.random.Next(ScrH) - Height;
+
+                        //Рассчёт пути до неё
+
+                        //Вектор Х
+                        dx = goX - (Location.X + BackgroundImage.Width / 2);
+                        //Вектор У
+                        dy = goY - (Location.Y + BackgroundImage.Height / 2);
+                        //Гипотенуза G (приближенная траектория)
+                        g = Math.Sqrt(dx * dx + dy * dy);
+
+                        //Установка значений "план" достижения области точки
+                        SpeedX = CurSpeed * dx / g;
+                        SpeedY = CurSpeed * dy / g;
+
+                        //Флаг "Путь расчитан"
+                        isPathfinded = true;
 
                         break;
                     }
@@ -898,98 +952,7 @@ namespace Aquarium
 
                 case 15:
                     {
-
-                        break;
-                    }
-
-                case 51:
-                    {
-
-                        break;
-                    }
-            }
-    }
-
-        public override void Update(int dt)
-        {
-            //Активировать переключатель состояний если рыбу не перетягивают
-            if (!IsDragged)
-            {
-                //TODO switch
-                //TODO Выделить состояния в отдельные методы с текстовыми названиями
-
-                //Если Мы в районе точки рандеву или .не знаем куда плыть
-                //По X: Левый угол формы - - - goX - - - Правый угол изображения
-
-                //Анализируем ситуацию вокруг, если условие - меняем состояние
-                //switch (state)
-                //{
-                //0:
-                if (state == 0)
-                {
-                        //Переключатель "Создать новую точку"
-                        if ((Location.X - 100 < goX) && (goX < (Location.X + BackgroundImage.Width + 100)) || !isPathfinded)
-                        {
-                            //По Y: верхний угол формы - - - goY - - - Нижний угол изображения
-                            if ((Location.Y - 100 < goY) && (goY < (Location.Y + BackgroundImage.Height + 100)) || !isPathfinded)
-                            {
-                                state = 10;
-                            }
-
-                        }
-
-                        //Переключатель "Создать новую точку отступления от испуга"
-                        if (cursorFear)
-                        {
-                            dx = Control.MousePosition.X - (Location.X + BackgroundImage.Width / 2);
-                            dy = Control.MousePosition.Y - (Location.Y + BackgroundImage.Height / 2);
-                            g = Math.Sqrt(dx * dx + dy * dy);
-
-                            if ((g < fov) && (!isTriggered))
-                            {
-                                state = 15;
-                            }
-
-                        }
-                        
-                        //Переключатель "Успокоиться и вспомнить точку"
-                        if (isTriggered)
-                        {
-                            {
-                                if (memoryTicks < memoryLasts)
-                                {
-                                    memoryTicks += (uint)dt;
-                                }
-                                else
-                                {
-                                    memoryTicks = 0;
-                                    isTriggered = false;
-                                    goX = goTX;
-                                    goY = goTY;
-
-                                    CurSpeed = MaxSpeedConst;
-
-                                    state = 0;
-                                }
-
-                            }
-                        }
-
-                }
-
-                //Ищем новую точку если требуют состояния, с их целями
-                if ((state >= 10) && (state < 20))
-                {
-                    //Генерация новой точки
-                    if (state == 10)
-                    {
-                        goX = Aquarium.random.Next(ScrW) - Width;
-                        goY = Aquarium.random.Next(ScrH) - Height;
-                    }
-
-                    //Поиск точки побега при испуге
-                    if (state == 15)
-                    {
+                        //Поиск точки побега при испуге
                         goTX = goX;
                         goTY = goY;
 
@@ -1024,55 +987,47 @@ namespace Aquarium
                             goX = Aquarium.random.Next(Control.MousePosition.X, ScrW) - BackgroundImage.Width;
                             goY = Aquarium.random.Next(Control.MousePosition.Y, ScrH) - BackgroundImage.Height;
                         }
+                        break;
                     }
 
-                    state = 0;
-                }
+                case 20:
+                    {
+
+                        //Перевернём если собираемся в другом направлении
+                        if (((SpeedX < 0) && (!isFlipped)) || ((SpeedX > 0) && (isFlipped)))
+                        {
+                            //state = 5; Стоит ли это выносить в отдельное состояние?
+                            if (rotationTicks >= RotationDelay)
+                            {
+                                Bitmap rotatedBI = new Bitmap(BackgroundImage);
+                                rotatedBI.RotateFlip(RotateFlipType.RotateNoneFlipX);
+                                BackgroundImage = rotatedBI;
+                                isFlipped = !isFlipped;
+                                rotationTicks = 0;
+                            }
+                            else
+                            {
+                                rotationTicks += (uint)dt;
+                                //Надо как-то отключить перемещение у рыбы, чтобы это не вызвало проблем
+                                //Состояние 5?
+                                //Решено сильно замедлять рыбу для симуляции инерции
+                                SpeedX /= 10;
+                                SpeedY /= 10;
+                            }
+                        }
+                        break;
+                    }
+            }
+    }
+
+        public override void Update(int dt)
+        {
+            //Активировать переключатель состояний если рыбу не перетягивают
+            if (!IsDragged)
+            {
+                StateMachine(state, dt); //Дирижёр состояний рыбы                
                 //И придумаем как её достичь
-
-                //? Зачем это выделено скобками, если переключения логикой нет?
-                {
-                    //Вектор Х
-                    dx = goX - (Location.X + BackgroundImage.Width / 2);
-                    //Вектор У
-                    dy = goY - (Location.Y + BackgroundImage.Height / 2);
-                    g = Math.Sqrt(dx * dx + dy * dy);
-
-                    //Установка значений "план" достижения области точки
-                    SpeedX = CurSpeed * dx / g;
-                    SpeedY = CurSpeed * dy / g;
-
-                    isPathfinded = true;
-                }
-
-                //Перевернём если собираемся в другом направлении
-                if (((SpeedX < 0) && (!isFlipped)) || ((SpeedX > 0) && (isFlipped)))
-                {
-                    //state = 5;
-                    if (rotationTicks >= RotationDelay)
-                    {
-                        Bitmap rotatedBI = new Bitmap(BackgroundImage);
-                        rotatedBI.RotateFlip(RotateFlipType.RotateNoneFlipX);
-                        BackgroundImage = rotatedBI;
-                        isFlipped = !isFlipped;
-                        rotationTicks = 0;
-                    }
-                    else
-                    {
-                        rotationTicks += (uint)dt;
-                        //Надо как-то отключить перемещение у рыбы, чтобы это не вызвало проблем
-                        //Состояние 5?
-                        //Решено сильно замедлять рыбу для симуляции инерции
-                        SpeedX /= 10;
-                        SpeedY /= 10;
-
-                    }
-                }
-                //}
-                rx += SpeedX * dt / 1000;
-                ry += SpeedY * dt / 1000;
-
-                Location = new Point((int)rx, (int)ry);
+                gMoveOn(SpeedX * dt / 1000, SpeedY * dt / 1000);
             }
 
         }
