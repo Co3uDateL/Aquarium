@@ -831,12 +831,11 @@ namespace Aquarium
                                 dy = Control.MousePosition.Y - (Location.Y + BackgroundImage.Height / 2);
                                 g = Math.Sqrt(dx * dx + dy * dy);
 
-                                if ((g < fov) && (!isTriggered))
+                                if ((g < fov) && (!isTriggered)) //TODO Попробовать удалить проверку на то если уже напугана
                                 {
                                     state = 15;
                                     break;
-                                    //Рыба пытается спастись от угрозы и точно не будет реагировать на другие условия
-                                    //Значит можно их не проверять
+                                    //Передать управление state 15
                                 }
                                     //S 15 <Time Out> --> S 10: Если рыба напугана и время испуга истекло
                                     //Переключатель "Успокоиться и вспомнить точку"
@@ -847,7 +846,8 @@ namespace Aquarium
                                             if (memoryTicks < memoryLasts)
                                             {
                                                 memoryTicks += (uint)dt;
-                                                
+                                                //Уплываем в страхе   
+                                                gMoveOn(SpeedX * dt / 1000, SpeedY * dt / 1000);
                                             }
                                             else
                                             {
@@ -890,9 +890,29 @@ namespace Aquarium
                                 //Решено сильно замедлять рыбу для симуляции инерции
                                 SpeedX /= 10;
                                 SpeedY /= 10;
+                                {
+                                    //state = 5; Стоит ли это выносить в отдельное состояние?
+                                    //Время поворота закончилось
+                                    if (rotationTicks >= RotationDelay)
+                                    {
+                                        Bitmap rotatedBI = new Bitmap(BackgroundImage);
+                                        rotatedBI.RotateFlip(RotateFlipType.RotateNoneFlipX);
+                                        BackgroundImage = rotatedBI;
+                                        isFlipped = !isFlipped;
+                                        rotationTicks = 0;
 
-                                state = 9; //Состояние "Повернуть"
-                                break;
+                                        state = 0;
+                                        break;
+
+                                    }
+                                    else
+                                    {//Продолжаем поворот
+                                        rotationTicks += (uint)dt;
+                                        gMoveOn(SpeedX * dt / 1000, SpeedY * dt / 1000);
+                                        break;
+                                    }
+                                } //Состояние "Повернуть"
+                            break;
                             }
 
                             //Если всё ок - плыть дальше
@@ -916,6 +936,9 @@ namespace Aquarium
                             BackgroundImage = rotatedBI;
                             isFlipped = !isFlipped;
                             rotationTicks = 0;
+
+                            SpeedX *= 10;
+                            SpeedY *= 10;
 
                             state = 0;
                             break;
@@ -951,12 +974,14 @@ namespace Aquarium
                         //Флаг "Путь расчитан"
                         isPathfinded = true;
 
+                        state = 0;
                         break;
                     }
 
                 case 11:
                     {
 
+                        state = 0;
                         break;
                     }
 
@@ -997,6 +1022,8 @@ namespace Aquarium
                             goX = Aquarium.random.Next(Control.MousePosition.X, ScrW) - BackgroundImage.Width;
                             goY = Aquarium.random.Next(Control.MousePosition.Y, ScrH) - BackgroundImage.Height;
                         }
+
+                        state = 0;
                         break;
                     }
 
@@ -1016,7 +1043,6 @@ namespace Aquarium
             {
                 StateMachine(state, dt); //Дирижёр состояний рыбы                
                 //И придумаем как её достичь
-                gMoveOn(SpeedX * dt / 1000, SpeedY * dt / 1000);
             }
 
         }
