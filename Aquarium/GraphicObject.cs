@@ -487,22 +487,21 @@ namespace Aquarium
         protected double Acceleration = 0;
         protected double LastAcceleration = 0;
         protected double SpeedY = 0;
+
         //TODO Colidings
-        //public bool IsCollidingWith(GameObject target)
-        //{
-        //    //Rectangle Rec1 = new Rectangle(this.Location, this.Size);
-        //    //Rectangle Rec2 = new Rectangle(target.Location, target.Size);
+        public bool IsCollidingWith(Rectangle target)
+        {
+             return (new Rectangle(this.Location, this.Size).IntersectsWith(target));
+        }
+        public bool IsCollidingWith(GameObject target)
+        {
+            return IsCollidingWith(new Rectangle(target.Location, target.Size));
+        }
+        public bool IsCollidingWith(Point p)
+        {
+            return IsCollidingWith(new Rectangle(p, new Size(1, 1)));
+        }
 
-        //    //if ( Rec1.IntersectsWith(Rec2) )
-
-        //    //Экономим на переменных
-        //    if ( new Rectangle(this.Location, this.Size).IntersectsWith(new Rectangle(target.Location, target.Size)))
-        //    {
-        //        return true;
-        //    }
-        //    //else
-        //    return false;
-        //}
         ////TODO Coliding
         //public double GetCollidingForce(GameObject target)
         //{
@@ -633,9 +632,6 @@ namespace Aquarium
         public int calories = 10;
         public int smell = 10;
 
-        //Включается если поедается другой рыбой
-        public bool busy = false;
-
         //TODO type enumerator
 
         /// <summary>
@@ -646,6 +642,13 @@ namespace Aquarium
         {
             calories = pCalories;
             smell = pSmell;
+        }
+
+        //Позволяет откусить от еды кусочек, написав foodX - 100;
+        static public Food operator - (Food food, int calories)
+        {
+            food.calories -= calories;
+            return food;
         }
     }
 
@@ -809,19 +812,13 @@ namespace Aquarium
             ry = Aquarium.random.Next(topY, floorY);
             gMoveTo(rx, ry);
         }
-        public override void gMoveOn(double dRx, double dRy)
-        {
-            rx += dRx;
-            ry += dRy;
-            Location = new Point((int)rx, (int)ry);
-        }
 
-        private void StateMachine(byte state, int dt)
+        private void StateMachine(byte inpState, int dt)
         {
             //Обработки состояния.
             //В зависимости от номера состояния
             //Воспроизводит то или иное поведение рыбы.
-            switch (state)
+            switch (inpState)
             {
                 //Проверить условия - Выбрать состояние
                 case 0: 
@@ -850,6 +847,7 @@ namespace Aquarium
                                             if (memoryTicks < memoryLasts)
                                             {
                                                 memoryTicks += (uint)dt;
+                                                
                                             }
                                             else
                                             {
@@ -861,7 +859,7 @@ namespace Aquarium
                                                 CurSpeed = MaxSpeedConst;
 
                                                 state = 10;
-                                                //break; //TODO Нужен ли тут брейк?
+                                                break; //TODO Нужен ли тут брейк?
                                             }
                                         }
                                     //else g >= FOV -> Рыба успешно оторвалась и больше не напугана
@@ -878,45 +876,57 @@ namespace Aquarium
                                 if ((Location.Y - 50 < goY) && (goY < (Location.Y + BackgroundImage.Height + 50)) || !isPathfinded)
                                 {
                                     state = 10;
-                                    //break; //TODO Нужен ли тут брейк?
+                                    break; //TODO Нужен ли тут брейк?
                                 }
 
                             }
+                            //Путь не найден - состояние 10.
+                            //Путь найден и не достигнут - двигаться
 
+                            //Если в другую сторону - повернуть
                             if (((SpeedX < 0) && (!isFlipped)) || ((SpeedX > 0) && (isFlipped)))
                             {
-                                state = 20; //Состояние "Повернуть"
-                                //break;
-                            }
-
-                            break; //Конец состояния. В лучшем случае сюда просто не дойдёт
-                    }
-
-                case 1: 
-                    {
-                        //Перевернём если собираемся в другом направлении
-                        if (((SpeedX < 0) && (!isFlipped)) || ((SpeedX > 0) && (isFlipped)))
-                        {
-                            //state = 5; Стоит ли это выносить в отдельное состояние?
-                            if (rotationTicks >= RotationDelay)
-                            {
-                                Bitmap rotatedBI = new Bitmap(BackgroundImage);
-                                rotatedBI.RotateFlip(RotateFlipType.RotateNoneFlipX);
-                                BackgroundImage = rotatedBI;
-                                isFlipped = !isFlipped;
-                                rotationTicks = 0;
-                            }
-                            else
-                            {
-                                rotationTicks += (uint)dt;
                                 //Надо как-то отключить перемещение у рыбы, чтобы это не вызвало проблем
-                                //Состояние 5?
                                 //Решено сильно замедлять рыбу для симуляции инерции
                                 SpeedX /= 10;
                                 SpeedY /= 10;
+
+                                state = 9; //Состояние "Повернуть"
+                                break;
                             }
-                        }
+
+                            //Если всё ок - плыть дальше
+                            gMoveOn(SpeedX * dt / 1000, SpeedY * dt / 1000);
+                            break; //Конец состояния. В лучшем случае сюда просто не дойдёт
+                    }
+
+                case 1:
+                    {
                         break;
+                    }
+                //Последнее из действий типа "Движение" для правильного расчёта скоростей
+                case 9:
+                    {
+                        //state = 5; Стоит ли это выносить в отдельное состояние?
+                        //Время поворота закончилось
+                        if (rotationTicks >= RotationDelay)
+                        {
+                            Bitmap rotatedBI = new Bitmap(BackgroundImage);
+                            rotatedBI.RotateFlip(RotateFlipType.RotateNoneFlipX);
+                            BackgroundImage = rotatedBI;
+                            isFlipped = !isFlipped;
+                            rotationTicks = 0;
+
+                            state = 0;
+                            break;
+
+                        }
+                        else
+                        {//Продолжаем поворот
+                            rotationTicks += (uint)dt;
+                            gMoveOn(SpeedX * dt / 1000, SpeedY * dt / 1000);
+                            break;
+                        }
                     }
 
                 case 10:
@@ -990,31 +1000,10 @@ namespace Aquarium
                         break;
                     }
 
-                case 20:
-                    {
 
-                        //Перевернём если собираемся в другом направлении
-                        if (((SpeedX < 0) && (!isFlipped)) || ((SpeedX > 0) && (isFlipped)))
-                        {
-                            //state = 5; Стоит ли это выносить в отдельное состояние?
-                            if (rotationTicks >= RotationDelay)
-                            {
-                                Bitmap rotatedBI = new Bitmap(BackgroundImage);
-                                rotatedBI.RotateFlip(RotateFlipType.RotateNoneFlipX);
-                                BackgroundImage = rotatedBI;
-                                isFlipped = !isFlipped;
-                                rotationTicks = 0;
-                            }
-                            else
-                            {
-                                rotationTicks += (uint)dt;
-                                //Надо как-то отключить перемещение у рыбы, чтобы это не вызвало проблем
-                                //Состояние 5?
-                                //Решено сильно замедлять рыбу для симуляции инерции
-                                SpeedX /= 10;
-                                SpeedY /= 10;
-                            }
-                        }
+                case 51:
+                    {
+                        //StartEatingFood
                         break;
                     }
             }

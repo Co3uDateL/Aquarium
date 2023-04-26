@@ -267,17 +267,29 @@ namespace Aquarium
 
         private void PlaceGranule(object sender, EventArgs e)
         {
-            InitFood("granule", random.Next(10, GraphicObject.ScrW - 10), random.Next(0, GraphicObject.ScrH));
+            int rnx = random.Next(10, GraphicObject.ScrW - 10);
+            int rny = random.Next(0, GraphicObject.ScrH);
+            InitFood("granule", rnx + random.Next(-150, 150), rny + random.Next(-50, 50));
+            InitFood("granule", rnx + random.Next(-150, 150), rny + random.Next(-50, 50));
+            InitFood("granule", rnx + random.Next(-150, 150), rny + random.Next(-50, 50));
         }
 
         private void PlacePill(object sender, EventArgs e)
         {
-            InitFood("pill", random.Next(10, GraphicObject.ScrW - 10), random.Next(0, GraphicObject.ScrH));
+            int rnx = random.Next(10, GraphicObject.ScrW - 10);
+            int rny = random.Next(0, GraphicObject.ScrH);
+            InitFood("pill", rnx + random.Next(-150, 150), rny + random.Next(-50, 50));
+            InitFood("pill", rnx + random.Next(-150, 150), rny + random.Next(-50, 50));
+            InitFood("pill", rnx + random.Next(-150, 150), rny + random.Next(-50, 50));
         }
 
         private void PlaceFlake(object sender, EventArgs e)
         {
-            InitFood("flake", random.Next(10, GraphicObject.ScrW - 10), random.Next(0, GraphicObject.ScrH));
+            int rnx = random.Next(10, GraphicObject.ScrW - 10);
+            int rny = random.Next(0, GraphicObject.ScrH);
+            InitFood("flake", rnx + random.Next(-150, 150), rny + random.Next(-50, 50));
+            InitFood("flake", rnx + random.Next(-150, 150), rny + random.Next(-50, 50));
+            InitFood("flake", rnx + random.Next(-150, 150), rny + random.Next(-50, 50));
         }
 
         private void PlaceFood(object sender, EventArgs e)
