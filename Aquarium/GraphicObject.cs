@@ -818,8 +818,11 @@ namespace Aquarium
         {
             IsDragged = false;
 
-            state = 11;
+            //Вспомнить путь до точки
             StateMachine(11, 0);
+            //Переключиться в то состояние в котором мы были
+            state = 0;
+            StateMachine(state, 0);
         }
 
         private void StateMachine(byte inpState, int dt)
@@ -833,6 +836,8 @@ namespace Aquarium
                 //
                 case 0:
                     {
+                        //UNHACK    
+                        //this.BackColor = Color.Green;
                     // S0 -> S15
                         //Если рыба боиться курсора 
                         if (cursorFear)
@@ -841,12 +846,13 @@ namespace Aquarium
                             dx = Control.MousePosition.X - (Location.X + BackgroundImage.Width / 2);
                             dy = Control.MousePosition.Y - (Location.Y + BackgroundImage.Height / 2);
                             // g = sqrt(dx^2 + dy^2) < fov
-                            if ((Math.Sqrt(dx * dx + dy * dy) < fov) && (!isTriggered))
+                            if ((Math.Sqrt(dx * dx + dy * dy) < fov))
                             {
                                 state = 15;
                                 StateMachine(state, 0);
                                 break;
                             }
+
                             //else g >= FOV -> Рыба успешно оторвалась и больше не напугана
                         }
 
@@ -888,7 +894,7 @@ namespace Aquarium
                                 else
                                 {//Продолжаем поворот
                                     rotationTicks += (uint)dt;
-                                    gMoveOn(SpeedX / 100 * dt / 1000, SpeedY / 100 * dt / 1000);
+                                    gMoveOn(SpeedX / 10 * dt / 1000, SpeedY / 10 * dt / 1000);
                                     break;
                                 }
                         }
@@ -902,6 +908,8 @@ namespace Aquarium
 
                 case 5:
                     {
+                        //UNHACK    
+                        //this.BackColor = Color.Red;
                         //S 5 <Time Out> --> S 10: Если рыба напугана и время испуга истекло
                         //Переключатель "Успокоиться и вспомнить точку"
                         //!isTriggered || g >= FOV (Следует из предыдущего выражения.) If нужен, так как может возникнуть при g >= FOV
@@ -928,19 +936,17 @@ namespace Aquarium
 
                                         state = 0;
                                         //Не выполняем мгновенный переход в цикличное состояние движения
-                                        break;
                                     }
                                     else
                                     {//Продолжаем поворот
                                         rotationTicks += (uint)dt;
-                                        gMoveOn(SpeedX / 100 * dt / 1000, SpeedY / 100 * dt / 1000);
-                                        break;
+                                        gMoveOn(SpeedX / 10 * dt / 1000, SpeedY / 10 * dt / 1000);
                                     }
                                 }
                                 else gMoveOn(SpeedX * dt / 1000, SpeedY * dt / 1000);
 
                             }
-                            else //S5 -> S0 
+                            else //S5 -> S11 -> S0 
                             {
                                 memoryTicks = 0;
                                 isTriggered = false;
@@ -951,6 +957,10 @@ namespace Aquarium
 
                                 state = 11;
                                 StateMachine(state, 0);
+
+                                //S5 -> S0
+                                state = 0;
+                                StateMachine(state, 0);
                                 break; //TODO Нужен ли тут брейк?
                             }
                         }
@@ -959,26 +969,20 @@ namespace Aquarium
 
                 case 10:
                     {
+                        //UNHACK    
+                        //this.BackColor = Color.Wheat;
                         //Генерация новой точки
                         goX = Aquarium.random.Next(ScrW) - Width;
                         goY = Aquarium.random.Next(ScrH) - Height;
 
                         //Рассчёт пути до неё
-
-                        //Вектор Х
-                        dx = goX - (Location.X + BackgroundImage.Width / 2);
-                        //Вектор У
-                        dy = goY - (Location.Y + BackgroundImage.Height / 2);
-                        //Гипотенуза G (приближенная траектория)
-                        g = Math.Sqrt(dx * dx + dy * dy);
-
-                        //Установка значений, "план" достижения области точки
-                        SpeedX = CurSpeed * dx / g;
-                        SpeedY = CurSpeed * dy / g;
+                        state = 11;
+                        StateMachine(11, 0);
 
                         //Флаг "Путь расчитан"
                         isPathfinded = true;
 
+                        //S10 - S0
                         state = 0;
                         StateMachine(state, dt);
                         break;
@@ -986,7 +990,22 @@ namespace Aquarium
 
                 case 11:
                     {
+                        //UNHACK    
+                        //this.BackColor = Color.Gray;
                         //Пересчитаем новый путь до старой точки
+
+                        //чтобы всегда видеть картинку на экране
+                        //Х должен быть Больше Ширины картинки,
+                        goX = Math.Max(goX, BackgroundImage.Width);
+                        //X должен быть Меньше Ширина экрана - Ширина картинки
+                        goX = Math.Min(goX, ScrW - BackgroundImage.Width);
+
+                        //Так как ось Y направлена вниз
+                        //Y должен быть Больше ПотолокY + Высота картинки
+                        goY = Math.Max(goY, topY + BackgroundImage.Height);
+                        //Y должен быть Меньше Высоты экрана - Высота картинки
+                        goY = Math.Min(goY, floorY - BackgroundImage.Height);
+
 
                         //Вектор Х
                         dx = goX - (Location.X + BackgroundImage.Width / 2);
@@ -999,52 +1018,58 @@ namespace Aquarium
                         SpeedX = CurSpeed * dx / g;
                         SpeedY = CurSpeed * dy / g;
 
-                        state = 0;
-                        StateMachine(state, 0);
+                        //Так как вызывается из разных состояний, для универсальности не будем переходить в состояние из 11-го состояния.
+                        //Укажите переход в другое состояние после вызова 11.
                         break;
                     }
 
                 case 15:
                     {
+                        //UNHACK    
+                        //this.BackColor = Color.Orange;
                         //Поиск точки побега при испуге
                         goTX = goX;
                         goTY = goY;
 
-                        isTriggered = true;
-
                         CurSpeed = TriggeredSpeed;
+                        isTriggered = true;
 
                         //TODO case
                         //Курсор в поле зрения!
-                        //Приближается справа, справа-сверху, сверху
+                        
+                        //I Приближается справа, справа-сверху, сверху
                         if ((dx >= 0) & (dy >= 0))
                         {
                             //Сгенерируем новую точку и придумаем как её достичь
-                            goX = Aquarium.random.Next(0, Control.MousePosition.X) - BackgroundImage.Width;
+                            goX = Math.Max(BackgroundImage.Width, Aquarium.random.Next(0, Control.MousePosition.X) - BackgroundImage.Width);
                             goY = Aquarium.random.Next(Control.MousePosition.Y, ScrH) - BackgroundImage.Height;
                         }
-                        //Приближается справа - снизу 
+                        //II Приближается справа - снизу 
                         if ((dx > 0) & (dy < 0))
                         {
                             goX = Aquarium.random.Next(0, Control.MousePosition.X) - BackgroundImage.Width;
                             goY = Aquarium.random.Next(Control.MousePosition.Y, ScrH) - BackgroundImage.Height;
                         }
-                        //Приближается слева, слева - снизу, снизу
+                        //III Приближается слева, слева - снизу, снизу
                         if ((dx <= 0) & (dy >= 0))
                         {
                             goX = Aquarium.random.Next(Control.MousePosition.X, ScrW) - BackgroundImage.Width;
                             goY = Aquarium.random.Next(0, Control.MousePosition.Y) - BackgroundImage.Height;
                         }
-                        //Приближается слева - сверху IV
+                        //IV Приближается слева - сверху
                         if ((dx < 0) & (dy < 0))
                         {
                             goX = Aquarium.random.Next(Control.MousePosition.X, ScrW) - BackgroundImage.Width;
                             goY = Aquarium.random.Next(Control.MousePosition.Y, ScrH) - BackgroundImage.Height;
                         }
 
+                        //S15 - S11 - S5
+                        state = 11; //Рассчитаем точку побега
+                        StateMachine(state, 0);
                         
+                        //S15 - S5
                         state = 5;
-                        StateMachine(state, 10); //Сразу рассчитаем движение в состоянии 5 за 10 мс (минимальный тик)
+                        StateMachine(state, dt); //Сразу продолжим движение в состоянии 5 за 10 мс (минимальный тик)
                         break;
                     }
 
