@@ -118,10 +118,10 @@ namespace Aquarium
                                 "../../data/textures/food/" + name + "/"+(random.Next(0,2).ToString())+".png",
                                 x,
                                 y,
-                                500,
-                                5,
-                                2/10,
-                                10,
+                                500, //calories
+                                5,   //scale
+                                (2/(double)10),//Fa
+                                10,  //Smell
                                 true
                             );
                         break;
@@ -133,10 +133,10 @@ namespace Aquarium
                                 "../../data/textures/food/" + name + "/" + (random.Next(0, 2).ToString()) + ".png",
                                 x,
                                 y,
-                                250,
-                                4,
-                                1/10,
-                                200,
+                                250,//calories
+                                4,//scale
+                                (1 / (double)10),//Fa
+                                200,//Smell
                                 true
                             );
                         break;
@@ -148,10 +148,10 @@ namespace Aquarium
                                 "../../data/textures/food/" + name + "/" + (random.Next(0, 2).ToString()) + ".png",
                                 x,
                                 y,
-                                random.Next(50, 300),
-                                3,
-                                random.Next(-1,1)/10,
-                                400,
+                                random.Next(50, 300),//calories
+                                3,//scale
+                                (random.Next(-100,100)/ (double)100),//Fa
+                                400,//Smell
                                 true
                             );
                         break;

@@ -474,7 +474,7 @@ namespace Aquarium
         /// <summary>
         /// Если включено, разрешает обработку столкновений с этим объектом
         /// </summary>
-        bool ColidingEnabled = true;
+        public bool ColidingEnabled = true;
         /// <summary>
         /// Реальные коордианты объекта
         /// </summary>
@@ -484,7 +484,7 @@ namespace Aquarium
         /// <summary>
         /// Ускорение по оси Y. (отрицательные значения для всплытия)
         /// </summary>
-        protected double Acceleration = 0;
+        protected double Acceleration = 1;
         protected double LastAcceleration = 0;
         protected double SpeedY = 0;
 
@@ -587,13 +587,6 @@ namespace Aquarium
             }
         }
 
-        public GameObject()
-        {
-            rx = Location.X;
-            ry = Location.Y;
-
-            Acceleration = 500;
-        }
         public GameObject(string path) : base(path)
         {
             rx = Location.X;
@@ -638,7 +631,8 @@ namespace Aquarium
         /// Создаст еду
         /// </summary>
         /// <param name="type"></param>
-        public Food(string path, int x, int y, int pCalories, double scale, double Fa, int pSmell, bool pColidingEnabled) : base(path, scale, Fa, x, y, pColidingEnabled)
+        public Food(string path, int px, int py, int pCalories, double pscale, double pFa, int pSmell, bool pColidingEnabled) 
+             : base(path, pscale, pFa, px, py, pColidingEnabled)
         {
             calories = pCalories;
             smell = pSmell;
@@ -658,7 +652,7 @@ namespace Aquarium
         /// <summary>
         /// Стандартная максимальная скорость рыбы, не изменяется
         /// </summary>
-        public double MaxSpeedConst = 200;
+        public double MaxSpeedConst;
 
         /// <summary>
         /// Боится ли рыба курсор
@@ -668,12 +662,12 @@ namespace Aquarium
         /// <summary>
         /// Время в милисекундах до выхода из страха
         /// </summary>
-        public uint memoryLasts = 100;
+        public uint memoryLasts;
 
         /// <summary>
         ///Поле зрения рыбы
         /// </summary>
-        public int fov = 400;
+        public int fov;
 
         /// <summary>
         /// Множитель ускорения во время испуга
@@ -683,11 +677,7 @@ namespace Aquarium
         /// <summary>
         /// Задержка поворота рыбы 
         /// </summary>
-        public uint RotationDelay = 100;
-
-        //ushort oxygen = 100;
-        //ushort saturation = 100;
-        //--- --- ---
+        public uint RotationDelay;
 
         /// <summary>
         /// Найден ли путь?
@@ -704,17 +694,24 @@ namespace Aquarium
         /// </summary>
         private bool isTriggered = false;
 
-        //TODO Перетаскивание рыбы
         /// <summary>
         /// Замораживает update - функцию рыбы.
         /// </summary>
-        //private bool isDragged = false;
 
         //TODO Система питания и хищники
         /// <summary>
         /// Насколько рыба сыта
         /// </summary>
-        private double Saturation;
+        //private double Saturation = 250;
+        ///// <summary>
+        ///// Максимум насыщения
+        ///// </summary>
+        //private double SaturationMax = 250;
+        ///// <summary>
+        ///// Сколько корма рыба есть за секунду жизни
+        ///// </summary>
+        //private double SaturationDrainMultiplier = 1;
+        
 
         /// <summary>
         /// Текущая скорость
@@ -776,22 +773,8 @@ namespace Aquarium
         /// <param name="dy"> По Y </param>
         /// <param name="g"> Гипотенуза (сумма векторов) = расстояние до мышки </param>
         /// 
-        double dx, dy, g;
+        private double dx, dy, g;
         //}
-        public Fish(string path) 
-             : base(path)
-        {
-            //InitializeComponent();
-            //InitializeBitmap("fish/" + name);
-            TransparencyKey = BackColor;
-
-            CurSpeed = MaxSpeedConst;
-            TriggeredSpeed = CurSpeed * TriggeredSpeedMultiplier;
-
-            rx = Aquarium.random.Next(0, ScrW);
-            ry = Aquarium.random.Next(topY, floorY);
-            gMoveTo(rx, ry);
-        }
         public Fish(string path, int pMaxSpeedConst, bool pcursorFear, uint pMemoryLasts, int pFov, double pTriggeredMultiplier, uint pRotationDelay)
              : base(path)
         {
@@ -811,6 +794,11 @@ namespace Aquarium
 
             rx = Aquarium.random.Next(0, ScrW);
             ry = Aquarium.random.Next(topY, floorY);
+
+            //SaturationDrainMultiplier = Math.Sqrt(Math.Pow(BackgroundImage.Width, 2) + Math.Pow(BackgroundImage.Height, 2)); //Около 90.5
+            //SaturationMax = SaturationDrainMultiplier * 25; //Проживёт 25 секунд без еды
+            //Saturation = 0.8 * SaturationMax;
+
             gMoveTo(rx, ry);
         }
 
@@ -825,6 +813,11 @@ namespace Aquarium
             StateMachine(state, 0);
         }
 
+        //private double FoodDrain()
+        //{
+        //    return (CurSpeed / (double)1000 * SaturationDrainMultiplier / (double)1000 * dt/(double) 1000);
+        //}
+
         private void StateMachine(byte inpState, int dt)
         {
             //Обработки состояния.
@@ -838,7 +831,7 @@ namespace Aquarium
                     {
                         //UNHACK    
                         //this.BackColor = Color.Green;
-                    // S0 -> S15
+                        // S0 -> S15
                         //Если рыба боиться курсора 
                         if (cursorFear)
                         {
@@ -902,6 +895,11 @@ namespace Aquarium
                         //S0 - Движение
                         //Если всё ок - плыть дальше
                         //Если выполнилось хоть одно условие, отработает встроенный в них break и сюда не дойдёт
+
+                        //TODO Изменить формулу
+                        //Число пройденных пикселей / 100 000 (На полном желудке в 100
+                        //double check = FoodDrain();
+                        //Saturation -= FoodDrain();
                         gMoveOn(SpeedX * dt / 1000, SpeedY * dt / 1000);
                         break;
                     }
@@ -943,7 +941,12 @@ namespace Aquarium
                                         gMoveOn(SpeedX / 10 * dt / 1000, SpeedY / 10 * dt / 1000);
                                     }
                                 }
-                                else gMoveOn(SpeedX * dt / 1000, SpeedY * dt / 1000);
+                                else
+                                {
+                                    //В испуге тратим больше еды из-за скорости
+                                    //Saturation -= FoodDrain();
+                                    gMoveOn(SpeedX * dt / 1000, SpeedY * dt / 1000);
+                                }
 
                             }
                             else //S5 -> S11 -> S0 
@@ -996,7 +999,7 @@ namespace Aquarium
 
                         //чтобы всегда видеть картинку на экране
                         //Х должен быть Больше Ширины картинки,
-                        goX = Math.Max(goX, BackgroundImage.Width);
+                        goX = Math.Max(goX, BackgroundImage.Width+110);
                         //X должен быть Меньше Ширина экрана - Ширина картинки
                         goX = Math.Min(goX, ScrW - BackgroundImage.Width);
 
