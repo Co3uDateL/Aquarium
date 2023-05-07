@@ -96,9 +96,9 @@ namespace Aquarium
             }
             catch (System.IO.FileNotFoundException)
             {
-                MessageBox.Show("Произошла ошибка!"  +
-                    "Не удалось обнаружить картинку" +
-                    "По пути: "+path);
+                MessageBox.Show("Произошла ошибка!\n" +
+                    "Не удалось обнаружить картинку\n" +
+                    "По пути: " +path);
             }
             catch (System.IO.FileLoadException)
             {
@@ -107,8 +107,7 @@ namespace Aquarium
             }
             catch (ArgumentException ae)
             {
-                MessageBox.Show("Произошло что-то непонятное\n" +
-                    "Оглядывайтесь вверх и по сторонам\n" +
+                MessageBox.Show("Произошла ошбика!\n"+
                     ""+path+"\n"+
                     ae.Message); 
             }
@@ -130,10 +129,13 @@ namespace Aquarium
         //}
         public static Bitmap ResizeBitmap(Bitmap original, int width, int height)
         {
+            width = Math.Abs(width);
+            height = Math.Abs(height);
+
             if ( (width + height) < 2) //Очень малая площадь около нуля
             {
-                width = (int) (original.Width * 0.3);
-                height = (int) (original.Height * 0.3);
+                width = (int) ( (original.Width+1) * 10);
+                height = (int) ( (original.Height+1) * 10);
             }
             try
             {
@@ -548,7 +550,7 @@ namespace Aquarium
             /// </summary>
 
             //В конце подвергнуться действию гравитцаии
-            if (!IsDragged)
+            if ( (!IsDragged) || (Visible) )
             {
                 //if (Acceleration != LastAcceleration)
                 //{
@@ -622,9 +624,38 @@ namespace Aquarium
     }
     public class Food : GameObject
     {
-        public int calories = 10;
-        public int smell = 10;
+        private double MaxCalories;
+        private double _calories;
+        public bool hidden = false;
+        public double calories
+        {
+            get
+            {
+                return _calories;
+            }
 
+            set
+            {
+                if (value < 0)
+                {
+                    consumed();
+                }
+                else
+                {
+                    _calories = value;
+                }
+            }
+        }
+        public int smell;
+
+        public void consumed()
+        {
+            _calories = 0;
+            hidden = true;
+
+            this.Visible = false;
+
+        }
         //TODO type enumerator
 
         /// <summary>
@@ -636,13 +667,8 @@ namespace Aquarium
         {
             calories = pCalories;
             smell = pSmell;
-        }
 
-        //Позволяет откусить от еды кусочек, написав foodX - 100;
-        static public Food operator - (Food food, int calories)
-        {
-            food.calories -= calories;
-            return food;
+            hidden = false;
         }
     }
 
@@ -711,7 +737,7 @@ namespace Aquarium
         ///// Сколько корма рыба есть за секунду жизни
         ///// </summary>
         //private double SaturationDrainMultiplier = 1;
-        
+
 
         /// <summary>
         /// Текущая скорость
@@ -752,6 +778,13 @@ namespace Aquarium
         /// Сколько тиков прошло с момента начала поворота
         /// </summary>
         private uint rotationTicks;
+
+        /// Еда которую мы хотим съесть
+        private Food TargetFood = null;
+
+        private uint foodSize = 1000;
+
+        private int Width, Height;
 
         /// <summary>
         /// Состояние рыбы
@@ -795,6 +828,9 @@ namespace Aquarium
             rx = Aquarium.random.Next(0, ScrW);
             ry = Aquarium.random.Next(topY, floorY);
 
+            Width = BackgroundImage.Width;
+            Height = BackgroundImage.Height;
+
             //SaturationDrainMultiplier = Math.Sqrt(Math.Pow(BackgroundImage.Width, 2) + Math.Pow(BackgroundImage.Height, 2)); //Около 90.5
             //SaturationMax = SaturationDrainMultiplier * 25; //Проживёт 25 секунд без еды
             //Saturation = 0.8 * SaturationMax;
@@ -813,12 +849,49 @@ namespace Aquarium
             StateMachine(state, 0);
         }
 
+        public void CalculateSpeedXY()
+        {
+            //State 11 replacement
+
+            //UNHACK    
+            //this.BackColor = Color.Gray;
+            //Пересчитаем новый путь до старой точки
+
+            //чтобы всегда видеть картинку на экране
+            //Х должен быть Больше Ширины картинки,
+            //goX = Math.Max(goX, BackgroundImage.Width + 110);
+            ////X должен быть Меньше Ширина экрана - Ширина картинки
+            //goX = Math.Min(goX, ScrW - BackgroundImage.Width);
+
+            ////Так как ось Y направлена вниз
+            ////Y должен быть Больше ПотолокY + Высота картинки
+            //goY = Math.Max(goY, topY + BackgroundImage.Height);
+            ////Y должен быть Меньше Высоты экрана - Высота картинки
+            //goY = Math.Min(goY, floorY - BackgroundImage.Height);
+
+
+            //Вектор Х
+            dx = goX - (Location.X + BackgroundImage.Width / 2);
+            //Вектор У
+            dy = goY - (Location.Y + BackgroundImage.Height / 2);
+            //Гипотенуза G (приближенная траектория)
+            g = Math.Sqrt(dx * dx + dy * dy);
+
+            //Установка значений, "план" достижения области точки
+            SpeedX = CurSpeed * dx / g;
+            SpeedY = CurSpeed * dy / g;
+
+            //Так как вызывается из разных состояний, для универсальности не будем переходить в состояние из 11-го состояния.
+            //Укажите переход в другое состояние после вызова 11.
+        }
+
+
         //private double FoodDrain()
         //{
         //    return (CurSpeed / (double)1000 * SaturationDrainMultiplier / (double)1000 * dt/(double) 1000);
         //}
 
-        private void StateMachine(byte inpState, int dt)
+        public void StateMachine(byte inpState, int dt)
         {
             //Обработки состояния.
             //В зависимости от номера состояния
@@ -849,6 +922,16 @@ namespace Aquarium
                             //else g >= FOV -> Рыба успешно оторвалась и больше не напугана
                         }
 
+                        //Рыба увидела еду
+                        //TODO Исправить плохой код
+                        //Переход - перенайти еду
+                        TargetFood = Program.MainForm.FindClosestFood(this);
+                        if (TargetFood != null)
+                        {
+                            state = 2;
+                            break;
+                        }
+
                         //S0 -> S 10: Если точка рандеву не достигнута или путь ещё не построен
 
                         //По Х: Левый угол формы --- goX --- Правый угол формы
@@ -865,6 +948,7 @@ namespace Aquarium
                             }
 
                         }
+
 
                         //S0 - Поворот
                         //Если в другую сторону - повернуть
@@ -958,8 +1042,7 @@ namespace Aquarium
                                 
                                 CurSpeed = MaxSpeedConst;
 
-                                state = 11;
-                                StateMachine(state, 0);
+                                CalculateSpeedXY();
 
                                 //S5 -> S0
                                 state = 0;
@@ -979,8 +1062,7 @@ namespace Aquarium
                         goY = Aquarium.random.Next(ScrH) - Height;
 
                         //Рассчёт пути до неё
-                        state = 11;
-                        StateMachine(11, 0);
+                        CalculateSpeedXY();
 
                         //Флаг "Путь расчитан"
                         isPathfinded = true;
@@ -991,40 +1073,134 @@ namespace Aquarium
                         break;
                     }
 
-                case 11:
+                //Найти еду
+                //case 12:
+                //    {
+                //        TargetFood = Program.MainForm.FindClosestFood(this);
+                //        if ( TargetFood == null )
+                //        {
+                //            state = 0;
+                //            break;
+                //        }
+
+                //        goX = TargetFood.Location.X;
+                //        goY = TargetFood.Location.Y;
+                //        CalculateSpeedXY(); 
+
+                //        if ( Aquarium.random.Next(2) == 1)
+                //        {
+                //            this.BackColor = Color.Red;
+                //        }
+                //        else this.BackColor = Color.Orange;
+
+                //        state = 2;
+                //        Не выполняем мгновенный переход в цикличное состояние движения
+                //        break;
+                //    }
+
+                //Плыть к еде
+                case 2:
                     {
-                        //UNHACK    
-                        //this.BackColor = Color.Gray;
-                        //Пересчитаем новый путь до старой точки
+                        //Переход 1 "Напугана"
+                        //Если рыба боиться курсора 
+                        if (cursorFear)
+                        {
+                            //S 15: видит курсор
+                            //STACKOVERFLOW?
+                            dx = Control.MousePosition.X - (Location.X + BackgroundImage.Width / 2);
+                            dy = Control.MousePosition.Y - (Location.Y + BackgroundImage.Height / 2);
+                            // g = sqrt(dx^2 + dy^2) < fov
+                            if ((Math.Sqrt(dx * dx + dy * dy) < fov))
+                            {
+                                state = 15;
+                                StateMachine(state, 0);
+                                break;
+                            }
 
-                        //чтобы всегда видеть картинку на экране
-                        //Х должен быть Больше Ширины картинки,
-                        goX = Math.Max(goX, BackgroundImage.Width+110);
-                        //X должен быть Меньше Ширина экрана - Ширина картинки
-                        goX = Math.Min(goX, ScrW - BackgroundImage.Width);
+                            //else g >= FOV -> Рыба успешно оторвалась и больше не напугана
+                        }
 
-                        //Так как ось Y направлена вниз
-                        //Y должен быть Больше ПотолокY + Высота картинки
-                        goY = Math.Max(goY, topY + BackgroundImage.Height);
-                        //Y должен быть Меньше Высоты экрана - Высота картинки
-                        goY = Math.Min(goY, floorY - BackgroundImage.Height);
+                        //Переход 2 - перенайти еду
+                        TargetFood = Program.MainForm.FindClosestFood(this);
+                        if (TargetFood != null)
+                        {
+                            goX = TargetFood.Location.X;
+                            goY = TargetFood.Location.Y;
+                            CalculateSpeedXY();
+                        }
+                        else
+                        {
+                            state = 0;
+                            break;
+                        }
+
+                        //Переход 3 "Достигли еды"
+                        if ((Location.X-50  < TargetFood.Location.X) && (TargetFood.Location.X < (Location.X+50 + BackgroundImage.Width)))
+                        {
+                            //По Y: верхний угол формы - - - goY - - - Нижний угол изображения
+                            if ((Location.Y < TargetFood.Location.Y) && (TargetFood.Location.Y < (Location.Y + BackgroundImage.Height)))
+                            {
+                                state = 52;
+                                //Не выполняем мгновенный переход в цикличное состояние движения
+                                break;
+                            }
+
+                        }
+
+                        //S2 - Поворот
+                        //Если в другую сторону - повернуть
+                        if (((SpeedX < 0) && (!isFlipped)) || ((SpeedX > 0) && (isFlipped)))
+                        {
+                            //state = 5; Стоит ли это выносить в отдельное состояние?
+                            //Время поворота закончилось
+                            if (rotationTicks >= RotationDelay)
+                            {
+                                Bitmap rotatedBI = new Bitmap(BackgroundImage);
+                                rotatedBI.RotateFlip(RotateFlipType.RotateNoneFlipX);
+                                BackgroundImage = rotatedBI;
+                                isFlipped = !isFlipped;
+                                rotationTicks = 0;
+
+                                state = 0;
+                                //Не выполняем мгновенный переход в цикличное состояние движения
+                                break;
+                            }
+                            else
+                            {//Продолжаем поворот
+                                rotationTicks += (uint)dt;
+                                gMoveOn(SpeedX / 10 * dt / 1000, SpeedY / 10 * dt / 1000);
+                                break;
+                            }
+                        }
 
 
-                        //Вектор Х
-                        dx = goX - (Location.X + BackgroundImage.Width / 2);
-                        //Вектор У
-                        dy = goY - (Location.Y + BackgroundImage.Height / 2);
-                        //Гипотенуза G (приближенная траектория)
-                        g = Math.Sqrt(dx * dx + dy * dy);
-
-                        //Установка значений, "план" достижения области точки
-                        SpeedX = CurSpeed * dx / g;
-                        SpeedY = CurSpeed * dy / g;
-
-                        //Так как вызывается из разных состояний, для универсальности не будем переходить в состояние из 11-го состояния.
-                        //Укажите переход в другое состояние после вызова 11.
+                        gMoveOn(SpeedX * dt / 1000, SpeedY * dt / 1000);
                         break;
                     }
+
+                //Есть еду
+                case 52:
+                    {
+                        if ((TargetFood.calories >= foodSize* dt / (double) 1000 ))
+                        {
+                            TargetFood.calories = (TargetFood.calories - foodSize * dt / (double)1000);
+                            //Fish.saturation += foodSize;
+                            break;
+                        }
+                        else
+                        {
+                            //TODO Перееделать под трату калорий
+                            //saturation += TargetFood.calories
+                            TargetFood.calories = 0;
+
+                            TargetFood.consumed();
+
+                            state = 0;
+                            //Не выполняем мгновенный переход в цикличное состояние движения
+                            break;
+                        }
+                    }
+
 
                 case 15:
                     {
@@ -1067,9 +1243,8 @@ namespace Aquarium
                         }
 
                         //S15 - S11 - S5
-                        state = 11; //Рассчитаем точку побега
-                        StateMachine(state, 0);
-                        
+                        CalculateSpeedXY();
+
                         //S15 - S5
                         state = 5;
                         StateMachine(state, dt); //Сразу продолжим движение в состоянии 5 за 10 мс (минимальный тик)

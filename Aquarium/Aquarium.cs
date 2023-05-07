@@ -5,10 +5,10 @@ using System.Windows.Forms;
 
 namespace Aquarium
 {
-
     public partial class Aquarium : Form
     {
         public List<GameObject> GameObjects = new List<GameObject>();
+
         public static Random random = new Random();
         public static readonly string TexturePath = "../../data/textures/";
 
@@ -158,6 +158,71 @@ namespace Aquarium
                     }
             }
         }
+
+        public List<Food> GetFoodList()
+        {
+            List<Food> foods = new List<Food>();
+            for (int i = 0; i < GameObjects.Count; i++)
+            {
+                if (GameObjects[i].GetType() == typeof(Food))
+                {
+                    //По идее преобразование не должно менять объект, так как есть фильтр по Food
+                    foods.Add((Food)GameObjects[i]);
+                }
+            }
+
+            return foods;
+        }
+        public Food FindClosestFood(Fish fish)
+        {
+            List<Food> foods = GetFoodList();
+            Food closest = null;
+
+            double g, gClosest;
+
+            foreach (Food f in foods)
+            {
+                if (f.hidden == false)
+                {
+                    //Гипотенуза G у f (приближенная траектория)
+                    g = Math.Sqrt(
+                                    f.Location.X - (fish.Location.X + fish.BackgroundImage.Width / 2) +
+                                    f.Location.Y - (fish.Location.Y + fish.BackgroundImage.Height / 2)
+                                 );
+
+                    //f в зоне обзора рыбы
+                    if (g < fish.fov)
+                    {
+                        //Если ближайшая ещё не найдена -> нам не с чем сравнивать -> f - ближайшая
+                        if (closest != null)
+                        {
+                            //Есть другая еда, которая может быть ближе.
+                            //Посчитаем путь до неё
+                            gClosest = Math.Sqrt(
+                                                   Math.Pow(closest.Location.X - (fish.Location.X + fish.BackgroundImage.Width / 2), 2) +
+                                                   Math.Pow(closest.Location.Y - (fish.Location.Y + fish.BackgroundImage.Height / 2), 2)
+                                                );
+                            //Путь до closest больше чем до f -> f - ближайшая
+                            if (g > gClosest)
+                            {
+                                closest = f;
+                            }
+                            //else closest = closest
+                        }
+                        else
+                        {
+                            closest = f;
+                        }
+
+                    }
+                }
+                
+            }
+
+            return closest;
+        }
+
+
 
         private void cMenuNewFish(object sender, EventArgs e)
         {
